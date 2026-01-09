@@ -1,20 +1,19 @@
 // config.js
-// بيانات مشروع "مكتبة الفكر" المحدثة بكلمة السر الجديدة
-
 const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyD2j3PwoH9delJ2iedCj4Z2LR_v9w-qmtw",
-    authDomain: "maktabat-alfikr.firebaseapp.com",
-    projectId: "maktabat-alfikr",
-    storageBucket: "maktabat-alfikr.firebasestorage.app",
-    messagingSenderId: "992658625800",
-    appId: "1:992658625800:web:0569b5bf447e09177b48bd"
+    apiKey: "AIzaSyB8JN73w75NQB7MifQMdOl1VcwifklyVZU",
+    authDomain: "newpro-d5360.firebaseapp.com",
+    databaseURL: "https://newpro-d5360-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "newpro-d5360",
+    storageBucket: "newpro-d5360.firebasestorage.app",
+    messagingSenderId: "732050035324",
+    appId: "1:732050035324:web:5a38e03134de3b287b2ff9",
+    measurementId: "G-9TYX1QYJQG"
 };
 
 const ADMIN_CREDENTIALS = {
-    name: "Rasha",      // الاسم الجديد بالإنجليزية
-    specialty: "20250929" // كلمة السر الجديدة (29 سبتمبر 2025)
+    name: "Rasha", 
+    specialty: "20250929" 
 };
 
-// جعل المتغيرات متاحة عالمياً لملف index.html لقراءتها
 window.FIREBASE_CONFIG = FIREBASE_CONFIG;
 window.ADMIN_CREDENTIALS = ADMIN_CREDENTIALS;
