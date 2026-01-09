@@ -5,129 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منارة الفكر - لوحة التحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./config.js"></script> 
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        // تهيئة Firebase بالبيانات الجديدة
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // جعل الأدوات متاحة عالمياً
+        window.DB_REF = ref;
+        window.DB_SET = set;
+        window.DB_PUSH = push;
+        window.DB_VAL = onValue;
+        window.DB_INSTANCE = db;
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) signInAnonymously(auth);
+            console.log("النظام جاهز");
+        });
+    </script>
+
     <style>
-        body {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-        }
-        .main-bg {
-            background: linear-gradient(135deg, #1f2937 0%, #171717 100%);
-        }
-        .section-body-rendered p { margin-bottom: 1rem; }
-        .section-body-rendered .highlight-quote {
-            border-right: 4px solid #f59e0b;
-            background-color: #fffbeb;
-            padding: 1rem;
-            margin: 1rem 0;
-            font-size: 1.25rem;
-            font-style: italic;
-            color: #1f2937;
-        }
-        .editor-textarea { min-height: 150px; }
-        .error-flash { transition: opacity 0.5s ease-out; }
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        .main-bg { background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="main-bg min-h-screen flex items-center justify-center p-4">
 
-    <div id="app" class="w-full max-w-4xl bg-stone-100 shadow-2xl rounded-xl p-6 md:p-10 transition-all duration-500">
+    <div id="app" class="w-full max-w-md glass-card shadow-2xl rounded-2xl p-8 transition-all">
         
-        <div id="global-error-message" class="hidden fixed top-0 right-0 m-4 p-3 bg-rose-700 text-white rounded-lg shadow-xl z-50 error-flash opacity-0">
-            <p id="global-error-text" class="font-semibold"></p>
-        </div>
-
-        <div id="loader" class="hidden flex flex-col items-center justify-center h-96 text-gray-700">
-            <svg class="animate-spin h-8 w-8 text-blue-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="mt-4 text-lg">جارِ الاتصال بقاعدة البيانات...</p>
-        </div>
-
-        <div id="registration-view" class="hidden">
-            <h1 class="text-3xl font-extrabold text-blue-900 mb-6 text-center">بوابة منارة الفكر</h1>
-            <p class="text-gray-600 mb-8 text-center">سجل الدخول لإدارة محتوى المتحف</p>
+        <div id="login-view">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-blue-900">منارة الفكر</h1>
+                <p class="text-gray-500 mt-2">تسجيل دخول الإدارة</p>
+            </div>
             
-            <form id="registration-form" class="space-y-6">
+            <form id="login-form" class="space-y-5">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">اسم المستخدم</label>
-                    <input type="text" id="name" name="name" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-800 focus:border-blue-800 outline-none">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">اسم المستخدم</label>
+                    <input type="text" id="username" required class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-                
                 <div>
-                    <label for="specialty" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
-                    <input type="password" id="specialty" name="specialty" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-800 focus:border-blue-800 outline-none">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">كلمة المرور</label>
+                    <input type="password" id="password" required class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-                
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-medium text-white bg-blue-800 hover:bg-blue-900 transition duration-150">
-                    دخول النظام
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                    دخول
                 </button>
             </form>
-            <p id="error-message" class="text-rose-600 text-sm mt-4 text-center hidden"></p>
+            <p id="error-msg" class="text-red-500 text-sm mt-4 text-center hidden">خطأ في البيانات، حاول مجدداً</p>
         </div>
 
-        <div id="home-view" class="hidden">
-            <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-300">
-                <h1 class="text-2xl font-bold text-blue-900">مرحباً، <span id="user-display-name"></span></h1>
-                <button onclick="window.location.reload();" class="text-sm text-red-600 font-medium">تسجيل الخروج</button>
+        <div id="admin-view" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">مرحباً، <span class="text-blue-600">Rasha</span></h2>
+                <button onclick="location.reload()" class="text-red-500 text-sm">خروج</button>
             </div>
-            <div id="dynamic-sections-list" class="space-y-4"></div>
-        </div>
+            
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                <p class="text-blue-800 text-sm text-center font-medium">لوحة تحكم مشروع newpro-d5360</p>
+            </div>
 
-        <div id="management-view" class="hidden">
-            <div class="flex justify-between items-center mb-8 pb-4 border-b border-rose-200">
-                <h1 class="text-2xl font-bold text-rose-800">لوحة التحكم الإدارية</h1>
-                <button onclick="window.location.reload();" class="text-sm text-gray-600">خروج</button>
+            <div class="space-y-4">
+                <button onclick="alert('جاري إضافة ميزة تعديل الأقسام...')" class="w-full py-3 bg-white border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-500 transition">
+                    + إضافة محتوى جديد
+                </button>
+                <div id="content-list" class="text-center text-gray-400 text-sm py-10">
+                    لا يوجد محتوى حالياً في قاعدة البيانات
+                </div>
             </div>
-            <button onclick="globalApp.openEditorModal('new')" class="mb-6 py-2 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-md transition">
-                + إضافة محتوى جديد
-            </button>
-            <div class="space-y-3" id="editable-sections-list"></div>
         </div>
     </div>
 
-    <script src="./config.js"></script>
-
     <script>
-        // دالة عرض الواجهات
-        function showView(viewId) {
-            ['loader', 'registration-view', 'home-view', 'management-view'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-        }
+        const loginForm = document.getElementById('login-form');
+        const loginView = document.getElementById('login-view');
+        const adminView = document.getElementById('admin-view');
+        const errorMsg = document.getElementById('error-msg');
 
-        // تشغيل النظام عند التحميل
-        window.onload = () => {
-            // تحميل البيانات الافتراضية من التخزين المحلي لضمان السرعة
-            if (!localStorage.getItem('muf_sections_data')) {
-                localStorage.setItem('muf_sections_data', JSON.stringify([]));
-            }
-            showView('registration-view'); // إظهار شاشة الدخول مباشرة
-        };
-
-        // معالجة تسجيل الدخول
-        document.getElementById('registration-form').addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('name').value;
-            const pass = document.getElementById('specialty').value;
-            
-            // التحقق من البيانات الموجودة في config.js (Rasha / 20250929)
-            if (name === window.ADMIN_CREDENTIALS.name && pass === window.ADMIN_CREDENTIALS.specialty) {
-                renderManagement();
-                showView('management-view');
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            // التحقق من Rasha و 20250929
+            if (u === window.ADMIN_CREDENTIALS.name && p === window.ADMIN_CREDENTIALS.specialty) {
+                loginView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                document.getElementById('app').classList.replace('max-w-md', 'max-w-2xl');
             } else {
-                const err = document.getElementById('error-message');
-                err.textContent = "بيانات الدخول غير صحيحة";
-                err.classList.remove('hidden');
+                errorMsg.classList.remove('hidden');
             }
         });
-
-        function renderManagement() {
-            const list = document.getElementById('editable-sections-list');
-            const data = JSON.parse(localStorage.getItem('muf_sections_data'));
-            list.innerHTML = data.length ? '' : '<p class="text-center text-gray-400">لا يوجد محتوى حالياً</p>';
-            // التكملة البرمجية للعرض...
-        }
     </script>
 </body>
 </html>
