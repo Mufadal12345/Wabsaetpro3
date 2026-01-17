@@ -1,2154 +1,1754 @@
 <!doctype html>
 <html lang="ar" dir="rtl" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>متحف الفكر - بوابة الإبداع الفكري الرقمية</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&amp;family=Tajawal:wght@300;400;500;700;800&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    * {
-      font-family: 'Tajawal', sans-serif;
-    }
-    .arabic-quote {
-      font-family: 'Amiri', serif;
-    }
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .gradient-bg {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    }
-    .card-hover {
-      transition: all 0.3s ease;
-    }
-    .card-hover:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-    .text-gradient {
-      background: linear-gradient(135deg, #e94560, #f39c12, #e94560);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradient-shift 3s ease infinite;
-    }
-    @keyframes gradient-shift {
-      0%, 100% { background-position: 0% center; }
-      50% { background-position: 100% center; }
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    .float-animation {
-      animation: float 3s ease-in-out infinite;
-    }
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.3); }
-      50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.6); }
-    }
-    .pulse-glow {
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-    .sidebar-item {
-      transition: all 0.2s ease;
-    }
-    .sidebar-item:hover {
-      background: rgba(233, 69, 96, 0.2);
-      padding-right: 1.5rem;
-    }
-    .sidebar-item.active {
-      background: rgba(233, 69, 96, 0.3);
-      border-right: 3px solid #e94560;
-    }
-    .modal-overlay {
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-    }
-    .notification-badge {
-      animation: bounce 1s ease infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, #e94560, #f39c12);
-      color: white;
-    }
-    .idea-card {
-      background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .category-badge {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.6rem;
-    }
-    .stats-card {
-      background: linear-gradient(145deg, rgba(233, 69, 96, 0.2), rgba(243, 156, 18, 0.1));
-    }
-    .loading-spinner {
-      border: 3px solid rgba(255,255,255,0.1);
-      border-top-color: #e94560;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .toast {
-      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes fadeOut {
-      to { opacity: 0; transform: translateX(100%); }
-    }
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .line-clamp-3 {
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .sidebar-hidden {
-      transform: translateX(100%);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .sidebar-visible {
-      transform: translateX(0);
-      opacity: 1;
-      pointer-events: all;
-    }
-    #sidebar {
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
-    }
-    .menu-icon {
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-    .menu-icon:hover {
-      transform: scale(1.1);
-    }
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .fade-in-up {
-      animation: fadeInUp 0.6s ease forwards;
-    }
-    .quote-card {
-      background: linear-gradient(145deg, rgba(233, 69, 96, 0.15), rgba(243, 156, 18, 0.1));
-      border-right: 4px solid #e94560;
-    }
-    .sync-indicator {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    }
-    .sync-success {
-      background: rgba(34, 197, 94, 0.9);
-      color: white;
-    }
-    .sync-syncing {
-      background: rgba(59, 130, 246, 0.9);
-      color: white;
-    }
-    .sync-error {
-      background: rgba(239, 68, 68, 0.9);
-      color: white;
-    }
-    .tag-input {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 0.75rem;
-      border-radius: 0.75rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .tag {
-      background: rgba(233, 69, 96, 0.3);
-      padding: 0.25rem 0.75rem;
-      border-radius: 1rem;
-      font-size: 0.85rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .tag button {
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-    .tag button:hover {
-      opacity: 1;
-    }
-  </style>
-  <style>@view-transition { navigation: auto; }</style>
- </head>
- <body class="h-full gradient-bg text-white overflow-auto">
-  <div id="app" class="h-full"><!-- Sync Status Indicator -->
-   <div id="sync-indicator" class="sync-indicator hidden"><span id="sync-icon">⏳</span> <span id="sync-text">جاري المزامنة...</span>
-   </div><!-- Toast Container -->
-   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Loading Screen -->
-   <div id="loading-screen" class="fixed inset-0 gradient-bg flex items-center justify-center z-50">
-    <div class="text-center">
-     <div class="loading-spinner mx-auto mb-4"></div>
-     <p class="text-xl text-gray-300">🔗 جاري الاتصال بقاعدة البيانات...</p>
-     <p class="text-sm text-gray-400 mt-2">متحف الفكر - النسخة المحدثة</p>
-    </div>
-   </div><!-- Login Page -->
-   <div id="login-page" class="hidden h-full flex items-center justify-center p-4">
-    <div class="glass-effect rounded-3xl p-8 max-w-md w-full">
-     <div class="text-center mb-8">
-      <div class="text-6xl mb-4 float-animation">
-       🏛️
-      </div>
-      <h1 id="login-title" class="text-3xl font-bold text-gradient mb-2">متحف الفكر</h1>
-      <p id="login-subtitle" class="text-gray-400">بوابة الإبداع الفكري الرقمية</p>
-      <p class="text-xs text-green-400 mt-2">✅ متصل بقاعدة البيانات</p>
-     </div>
-     <form id="login-form" class="space-y-6">
-      <div><label for="login-name" class="block text-sm font-medium mb-2 text-gray-300">الاسم</label> <input type="text" id="login-name" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 transition" placeholder="أدخل اسمك">
-      </div>
-      <div><label for="login-specialty" class="block text-sm font-medium mb-2 text-gray-300">التخصص</label> <input type="text" id="login-specialty" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 transition" placeholder="أدخل تخصصك">
-      </div><button type="submit" id="login-btn" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 text-white font-bold text-lg hover:opacity-90 transition pulse-glow"> 🚀 دخول المتحف </button>
-     </form>
-     <p id="login-welcome" class="text-center text-gray-500 text-sm mt-6">حيث تتحول الأفكار إلى إرث خالد</p>
-    </div>
-   </div><!-- Main Dashboard -->
-   <div id="dashboard" class="hidden h-full flex relative"><!-- Menu Toggle Button --> <button id="menu-toggle" class="fixed top-6 right-6 z-40 w-14 h-14 rounded-full glass-effect flex items-center justify-center menu-icon"> <span class="text-2xl">🏛️</span> </button> <!-- Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 glass-effect border-l border-white/10 flex flex-col z-30 sidebar-hidden">
-     <div class="p-6 border-b border-white/10">
-      <div class="flex items-center gap-3"><span class="text-3xl">🏛️</span>
-       <div>
-        <h2 id="sidebar-title" class="font-bold text-lg">متحف الفكر</h2>
-        <p class="text-xs text-gray-400">لوحة التحكم</p>
-       </div>
-      </div>
-     </div>
-     <nav class="flex-1 p-4 space-y-2 overflow-auto"><button onclick="navigateTo('home')" class="sidebar-item active w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="home"> <span>🏠</span> <span>الرئيسية</span> </button> <button onclick="navigateTo('ideas')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="ideas"> <span>💡</span> <span>الأفكار</span> </button> <button onclick="navigateTo('trending')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="trending"> <span>🔥</span> <span>الأكثر رواجاً</span> </button> <button onclick="navigateTo('content')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="content"> <span>📚</span> <span>المحتوى</span> </button> <button onclick="navigateTo('philosophy')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="philosophy"> <span>🧠</span> <span>الفلسفة</span> </button> <button onclick="navigateTo('quotes')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="quotes"> <span>✨</span> <span>عبارات ملهمة</span> </button> <button onclick="navigateTo('search')" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3" data-section="search"> <span>🔍</span> <span>البحث</span> </button> <button onclick="navigateTo('members')" id="members-btn" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3 hidden" data-section="members"> <span>👥</span> <span>الأعضاء</span> </button> <button onclick="navigateTo('suggestions')" id="suggestions-btn" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3 relative" data-section="suggestions"> <span>📝</span> <span>الاقتراحات</span> <span id="suggestions-badge" class="hidden absolute left-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center notification-badge">0</span> </button> <button onclick="navigateTo('invites')" id="invites-btn" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3 hidden" data-section="invites"> <span>🎫</span> <span>رموز الدعوة</span> </button> <button onclick="navigateTo('settings')" id="settings-btn" class="sidebar-item w-full text-right px-4 py-3 rounded-xl flex items-center gap-3 hidden" data-section="settings"> <span>⚙️</span> <span>الإعدادات</span> </button>
-     </nav>
-     <div class="p-4 border-t border-white/10">
-      <div class="flex items-center gap-3 mb-3">
-       <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-600 to-orange-500 flex items-center justify-center text-lg"><span id="user-avatar">👤</span>
-       </div>
-       <div class="flex-1">
-        <p id="user-name" class="font-medium text-sm truncate">مستخدم</p>
-        <p id="user-specialty" class="text-xs text-gray-400 truncate">تخصص</p>
-       </div>
-      </div><button onclick="logout()" class="w-full py-2 rounded-lg bg-white/10 hover:bg-red-500/30 transition text-sm"> 🚪 تسجيل الخروج </button>
-     </div>
-    </aside><!-- Main Content -->
-    <main id="main-content" class="flex-1 overflow-auto p-6"><!-- Home Section -->
-     <section id="home-section" class="space-y-6 max-w-7xl mx-auto">
-      <div class="flex justify-between items-center flex-wrap gap-4 mb-8">
-       <div>
-        <h1 class="text-4xl font-bold mb-2">مرحباً بك في متحف الفكر 🏛️</h1>
-        <p class="text-gray-400">اكتشف الأفكار وشارك إبداعاتك</p>
-       </div><button onclick="openModal('add-idea')" id="add-idea-home-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 hover:opacity-90 transition flex items-center gap-2"> <span>✨</span> <span>فكرة جديدة</span> </button>
-      </div><!-- Featured Quote -->
-      <div class="quote-card rounded-2xl p-8 mb-8 fade-in-up">
-       <div class="text-5xl mb-4 text-center">
-        📖
-       </div>
-       <p class="arabic-quote text-2xl text-center mb-4 leading-relaxed">"الفكرة هي البذرة، والعقل هو التربة، والإبداع هو الثمرة"</p>
-       <p class="text-center text-gray-400">— من حكم متحف الفكر</p>
-      </div><!-- Stats Cards (Admin Only) -->
-      <div id="admin-stats-section" class="hidden grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-       <div class="stats-card rounded-2xl p-6 glass-effect card-hover">
-        <div class="text-4xl mb-2">
-         💡
-        </div>
-        <p class="text-3xl font-bold" id="stats-ideas">0</p>
-        <p class="text-gray-400 text-sm">فكرة مسجلة</p>
-       </div>
-       <div class="stats-card rounded-2xl p-6 glass-effect card-hover">
-        <div class="text-4xl mb-2">
-         👥
-        </div>
-        <p class="text-3xl font-bold" id="stats-members">0</p>
-        <p class="text-gray-400 text-sm">عضو نشط</p>
-       </div>
-       <div class="stats-card rounded-2xl p-6 glass-effect card-hover">
-        <div class="text-4xl mb-2">
-         👁️
-        </div>
-        <p class="text-3xl font-bold" id="stats-views">0</p>
-        <p class="text-gray-400 text-sm">مشاهدة</p>
-       </div>
-       <div class="stats-card rounded-2xl p-6 glass-effect card-hover">
-        <div class="text-4xl mb-2">
-         ⭐
-        </div>
-        <p class="text-3xl font-bold" id="stats-featured">0</p>
-        <p class="text-gray-400 text-sm">فكرة مميزة</p>
-       </div>
-      </div><!-- Recent Ideas -->
-      <div class="glass-effect rounded-2xl p-6">
-       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">أحدث الأفكار 💡</h2><button onclick="navigateTo('ideas')" class="text-pink-500 hover:underline text-sm">عرض الكل ←</button>
-       </div>
-       <div id="recent-ideas" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <p class="text-gray-400 col-span-full text-center py-8">لا توجد أفكار بعد. كن أول من يشارك!</p>
-       </div>
-      </div>
-     </section><!-- Ideas Section -->
-     <section id="ideas-section" class="hidden space-y-6 max-w-7xl mx-auto">
-      <div class="flex justify-between items-center flex-wrap gap-4">
-       <div>
-        <h1 class="text-3xl font-bold">معرض الأفكار 💡</h1>
-        <p class="text-gray-400 mt-1">اكتشف الإبداعات الفكرية للأعضاء</p>
-       </div><button onclick="openModal('add-idea')" id="add-idea-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 hover:opacity-90 transition flex items-center gap-2"> <span>✨</span> <span>أضف فكرتك</span> </button>
-      </div><!-- Filter Tabs -->
-      <div class="flex gap-2 flex-wrap"><button onclick="filterIdeas('all')" class="tab-btn active px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition text-sm">الكل</button> <button onclick="filterIdeas('تقنية')" class="tab-btn px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition text-sm">تقنية</button> <button onclick="filterIdeas('فكرية')" class="tab-btn px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition text-sm">فكرية</button> <button onclick="filterIdeas('إبداعية')" class="tab-btn px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition text-sm">إبداعية</button> <button onclick="filterIdeas('علمية')" class="tab-btn px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition text-sm">علمية</button>
-      </div><!-- Ideas Grid -->
-      <div id="ideas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-       <p class="text-gray-400 col-span-full text-center py-12">لا توجد أفكار في هذا القسم بعد</p>
-      </div>
-     </section><!-- Trending Section -->
-     <section id="trending-section" class="hidden space-y-6 max-w-7xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold mb-2">الأكثر رواجاً 🔥</h1>
-       <p class="text-gray-400">الأفكار الأكثر تفاعلاً ومشاهدة</p>
-      </div>
-      <div id="trending-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-       <p class="text-gray-400 col-span-full text-center py-12">لا توجد أفكار رائجة بعد</p>
-      </div>
-     </section><!-- Search Section -->
-     <section id="search-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold mb-2">البحث 🔍</h1>
-       <p class="text-gray-400">ابحث عن الأفكار والمحتوى</p>
-      </div>
-      <div class="glass-effect rounded-2xl p-6"><input type="text" id="search-input" class="w-full px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 text-lg" placeholder="ابحث عن أفكار، كلمات مفتاحية، أو مؤلفين...">
-      </div>
-      <div id="search-results" class="space-y-4">
-       <p class="text-gray-400 text-center py-12">ابدأ البحث لإيجاد الأفكار...</p>
-      </div>
-     </section><!-- Content Section -->
-     <section id="content-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold mb-2">المحتوى الفكري 📚</h1>
-       <p class="text-gray-400">مقالات ونصوص فكرية ملهمة</p>
-      </div>
-      <div class="space-y-6"><!-- Article 1 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="flex items-start gap-4 mb-4">
-         <div class="text-4xl">
-          📖
-         </div>
-         <div>
-          <h2 class="text-2xl font-bold mb-2">قوة الفكرة في تغيير الواقع</h2>
-          <p class="text-sm text-gray-400">مقالة فكرية</p>
-         </div>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">الأفكار هي البذور التي تنبت في عقولنا لتصبح واقعاً نعيشه. كل اختراع عظيم، كل حركة تغيير، كل ثورة حضارية، بدأت بفكرة بسيطة في عقل إنسان واحد. لكن الفكرة وحدها لا تكفي، فهي تحتاج إلى العزيمة والإصرار والعمل الجاد لتتحول من خيال إلى حقيقة ملموسة تؤثر في حياة الملايين.</p>
-        <p class="text-gray-300 leading-relaxed">في هذا المتحف، نؤمن بأن كل فكرة تستحق أن تُسمع، وكل صوت يستحق أن يُسمع. نحن هنا لنوفر المساحة الآمنة حيث يمكن للأفكار أن تنمو وتزدهر، حيث يمكن للعقول أن تلتقي وتتحاور، وحيث يمكن للإبداع أن يجد طريقه إلى النور.</p>
-       </div><!-- Article 2 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="flex items-start gap-4 mb-4">
-         <div class="text-4xl">
-          🌟
-         </div>
-         <div>
-          <h2 class="text-2xl font-bold mb-2">الإبداع: رحلة لا وجهة</h2>
-          <p class="text-sm text-gray-400">تأملات إبداعية</p>
-         </div>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">الإبداع ليس حدثاً يحدث مرة واحدة، بل هو رحلة مستمرة من الاستكشاف والتجريب والتعلم. كل خطوة في هذه الرحلة تفتح أبواباً جديدة من الإمكانيات، وكل تجربة - سواء نجحت أم فشلت - تضيف إلى خبرتنا وتوسع آفاقنا.</p>
-        <p class="text-gray-300 leading-relaxed">المبدعون الحقيقيون هم أولئك الذين لا يخافون الفشل، بل يرونه فرصة للتعلم والنمو. هم الذين يجرؤون على التفكير خارج الصندوق، والذين يؤمنون بأن لا شيء مستحيل طالما توفرت الإرادة والعزيمة.</p>
-       </div><!-- Article 3 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="flex items-start gap-4 mb-4">
-         <div class="text-4xl">
-          🎨
-         </div>
-         <div>
-          <h2 class="text-2xl font-bold mb-2">التنوع الفكري: ثراء الحضارة</h2>
-          <p class="text-sm text-gray-400">رؤية ثقافية</p>
-         </div>
-        </div>
-        <p class="text-gray-300 leading-relaxed mb-4">التنوع الفكري هو ما يجعل الحضارات غنية ومزدهرة. عندما تلتقي الأفكار المختلفة، عندما تتصادم وجهات النظر المتباينة، عندما يحاور العقل النقدي العقل الإبداعي - في تلك اللحظات تولد الحلول المبتكرة والأفكار الثورية.</p>
-        <p class="text-gray-300 leading-relaxed">في متحف الفكر، نحتفي بهذا التنوع. نؤمن بأن كل صوت مهم، وأن كل وجهة نظر تضيف بُعداً جديداً لفهمنا الجماعي. هنا، الاختلاف ليس عائقاً بل هو قوة دافعة نحو الابتكار والتطور.</p>
-       </div>
-      </div>
-     </section><!-- Philosophy Section -->
-     <section id="philosophy-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold mb-2">الفلسفة والتأمل 🧠</h1>
-       <p class="text-gray-400">أسئلة عميقة وتأملات فلسفية</p>
-      </div>
-      <div class="space-y-6"><!-- Philosophy 1 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="text-center mb-6">
-         <div class="text-5xl mb-4">
-          🤔
-         </div>
-         <h2 class="text-2xl font-bold arabic-quote">ما هي الفكرة؟</h2>
-        </div>
-        <div class="space-y-4 text-gray-300 leading-relaxed">
-         <p>الفكرة هي أصغر وحدة من المعنى يمكن للعقل أن يستوعبها. هي الشرارة الأولى التي تشعل نار التغيير. لكن ما الذي يجعل فكرة ما عظيمة؟ هل هي الأصالة؟ التأثير؟ القدرة على البقاء؟</p>
-         <p class="pr-6 border-r-4 border-pink-600">ربما العظمة في الفكرة ليست في الفكرة ذاتها، بل في قدرتها على إيقاظ أفكار أخرى في عقول أخرى. الفكرة العظيمة هي تلك التي تنتشر، تتطور، وتلهم الآخرين لإنتاج أفكار جديدة.</p>
-        </div>
-       </div><!-- Philosophy 2 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="text-center mb-6">
-         <div class="text-5xl mb-4">
-          ⚖️
-         </div>
-         <h2 class="text-2xl font-bold arabic-quote">الحرية والمسؤولية</h2>
-        </div>
-        <div class="space-y-4 text-gray-300 leading-relaxed">
-         <p>مع حرية التفكير تأتي مسؤولية التفكير النقدي. كل فكرة نتبناها، كل معتقد نحمله، له تأثير على حياتنا وحياة من حولنا. لذا، فإن التفكير العميق ليس رفاهية فكرية، بل هو واجب أخلاقي.</p>
-         <p class="pr-6 border-r-4 border-pink-600">السؤال ليس "ماذا أفكر؟" بل "لماذا أفكر هكذا؟" و "ما هي الأدلة التي تدعم هذا التفكير؟" التفكير النقدي هو الجسر بين الحرية والمسؤولية.</p>
-        </div>
-       </div><!-- Philosophy 3 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="text-center mb-6">
-         <div class="text-5xl mb-4">
-          🌍
-         </div>
-         <h2 class="text-2xl font-bold arabic-quote">الفكر والواقع</h2>
-        </div>
-        <div class="space-y-4 text-gray-300 leading-relaxed">
-         <p>هل الأفكار تشكل الواقع أم الواقع يشكل الأفكار؟ هذا السؤال الفلسفي القديم له إجابة عملية: كلاهما صحيح. نحن نتأثر بواقعنا فنفكر بطرق معينة، ثم نستخدم أفكارنا لتغيير هذا الواقع.</p>
-         <p class="pr-6 border-r-4 border-pink-600">المفكر الحقيقي هو من يدرك هذه العلاقة الجدلية ويستخدمها بوعي. هو من ينظر إلى الواقع بعين ناقدة، ثم يستخدم قوة الفكر لتخيل واقع أفضل، وأخيراً يعمل على تحويل هذا التخيل إلى حقيقة.</p>
-        </div>
-       </div><!-- Philosophy 4 -->
-       <div class="glass-effect rounded-2xl p-8 card-hover">
-        <div class="text-center mb-6">
-         <div class="text-5xl mb-4">
-          💭
-         </div>
-         <h2 class="text-2xl font-bold arabic-quote">قيمة الصمت</h2>
-        </div>
-        <div class="space-y-4 text-gray-300 leading-relaxed">
-         <p>في عالم مليء بالضجيج والآراء المتسارعة، الصمت أصبح فضيلة نادرة. لكن الصمت ليس غياباً للفكر، بل هو حضور مكثف له. في الصمت، نستطيع أن نسمع صوتنا الداخلي، أن نرتب أفكارنا، وأن نصل إلى أعماق أعمق من الفهم.</p>
-         <p class="pr-6 border-r-4 border-pink-600">قبل أن تشارك فكرتك مع العالم، امنحها لحظات من الصمت. دعها تنضج في عقلك، تتبلور وتتضح. الأفكار العظيمة ليست تلك التي نقولها بسرعة، بل تلك التي نحتفظ بها حتى تصبح جاهزة للولادة.</p>
-        </div>
-       </div>
-      </div>
-     </section><!-- Quotes Section -->
-     <section id="quotes-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold mb-2">عبارات ملهمة ✨</h1>
-       <p class="text-gray-400">كلمات تضيء العقل وتحرك القلب</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6"><!-- Quote 1 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         💡
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"العقل كالمظلة، لا يعمل إلا إذا كان مفتوحاً"</p>
-        <p class="text-center text-gray-400 text-sm">— حكمة شعبية</p>
-       </div><!-- Quote 2 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🌟
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"أنا أفكر، إذن أنا موجود"</p>
-        <p class="text-center text-gray-400 text-sm">— رينيه ديكارت</p>
-       </div><!-- Quote 3 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🎨
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"الخيال أهم من المعرفة، فالمعرفة محدودة بينما الخيال فيحيط بالعالم"</p>
-        <p class="text-center text-gray-400 text-sm">— ألبرت أينشتاين</p>
-       </div><!-- Quote 4 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         📚
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"القراءة تمنح الإنسان حيوات متعددة في حياة واحدة"</p>
-        <p class="text-center text-gray-400 text-sm">— من حكم الأدب</p>
-       </div><!-- Quote 5 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🔥
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"الفكرة التي لا تتحول إلى فعل، ليست أكثر من حلم"</p>
-        <p class="text-center text-gray-400 text-sm">— حكمة عملية</p>
-       </div><!-- Quote 6 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🌱
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"المعرفة قوة، ولكن التطبيق هو السلطان"</p>
-        <p class="text-center text-gray-400 text-sm">— فرانسيس بيكون</p>
-       </div><!-- Quote 7 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🎯
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"النجاح ليس نهاية، والفشل ليس قاتلاً، إنها الشجاعة على الاستمرار هي التي تحسب"</p>
-        <p class="text-center text-gray-400 text-sm">— وينستون تشرشل</p>
-       </div><!-- Quote 8 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🦋
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"التغيير يبدأ من الداخل، وينمو نحو الخارج"</p>
-        <p class="text-center text-gray-400 text-sm">— من حكم التطور الذاتي</p>
-       </div><!-- Quote 9 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🌊
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"كن كالماء، مرناً وقوياً في آن واحد"</p>
-        <p class="text-center text-gray-400 text-sm">— بروس لي</p>
-       </div><!-- Quote 10 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         ✨
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"الإبداع هو الذكاء وهو يستمتع"</p>
-        <p class="text-center text-gray-400 text-sm">— ألبرت أينشتاين</p>
-       </div><!-- Quote 11 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🎭
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"الحياة إما مغامرة جريئة أو لا شيء"</p>
-        <p class="text-center text-gray-400 text-sm">— هيلين كيلر</p>
-       </div><!-- Quote 12 -->
-       <div class="quote-card rounded-2xl p-6 card-hover">
-        <div class="text-4xl mb-4 text-center">
-         🏔️
-        </div>
-        <p class="arabic-quote text-xl text-center mb-4 leading-relaxed">"القمة ليست الهدف، بل الرحلة إليها"</p>
-        <p class="text-center text-gray-400 text-sm">— من حكم المسافرين</p>
-       </div>
-      </div>
-     </section><!-- Members Section (Admin Only) -->
-     <section id="members-section" class="hidden space-y-6 max-w-7xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold">أعضاء المتحف 👥</h1>
-       <p class="text-gray-400 mt-1">تعرف على المفكرين والمبدعين</p>
-      </div>
-      <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-       <p class="text-gray-400 col-span-full text-center py-12">لا يوجد أعضاء مسجلين بعد</p>
-      </div>
-     </section><!-- Suggestions Section -->
-     <section id="suggestions-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div class="flex justify-between items-center flex-wrap gap-4">
-       <div>
-        <h1 class="text-3xl font-bold">صندوق الاقتراحات 📝</h1>
-        <p class="text-gray-400 mt-1">شاركنا أفكارك لتطوير المتحف</p>
-       </div><button onclick="openModal('add-suggestion')" id="add-suggestion-btn" class="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 hover:opacity-90 transition flex items-center gap-2"> <span>💡</span> <span>اقتراح جديد</span> </button>
-      </div>
-      <div id="suggestions-list" class="space-y-4">
-       <p class="text-gray-400 text-center py-12">لا توجد اقتراحات بعد. كن أول من يقترح!</p>
-      </div>
-     </section><!-- Invites Section (Admin Only) -->
-     <section id="invites-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div class="flex justify-between items-center flex-wrap gap-4">
-       <div>
-        <h1 class="text-3xl font-bold">رموز الدعوة 🎫</h1>
-        <p class="text-gray-400 mt-1">إنشاء وإدارة رموز الدعوة للأعضاء</p>
-       </div><button onclick="generateInviteCode()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 hover:opacity-90 transition flex items-center gap-2"> <span>➕</span> <span>إنشاء رمز جديد</span> </button>
-      </div>
-      <div id="invites-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-       <p class="text-gray-400 col-span-full text-center py-12">لا توجد رموز دعوة بعد</p>
-      </div>
-     </section><!-- Settings Section (Admin Only) -->
-     <section id="settings-section" class="hidden space-y-6 max-w-5xl mx-auto">
-      <div>
-       <h1 class="text-3xl font-bold">إعدادات المتحف ⚙️</h1>
-       <p class="text-gray-400 mt-1">إدارة وتخصيص المتحف</p>
-      </div>
-      <div class="glass-effect rounded-2xl p-6 space-y-6">
-       <div>
-        <h3 class="text-xl font-bold mb-4">حالة الاتصال بقاعدة البيانات</h3>
-        <div id="db-status" class="p-4 rounded-xl bg-green-500/20 text-green-400 flex items-center gap-3"><span class="text-2xl">✅</span>
-         <div>
-          <p class="font-bold">متصل بنجاح</p>
-          <p class="text-sm opacity-80">Supabase Database</p>
-         </div>
-        </div>
-       </div>
-       <div class="border-t border-white/10 pt-6">
-        <h3 class="text-xl font-bold mb-4">إدارة المحتوى</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><button onclick="exportData()" class="p-4 rounded-xl bg-white/10 hover:bg-white/20 transition flex items-center gap-3"> <span class="text-2xl">📤</span>
-          <div class="text-right">
-           <p class="font-medium">تصدير البيانات</p>
-           <p class="text-sm text-gray-400">تحميل نسخة احتياطية</p>
-          </div></button> <button onclick="syncNow()" class="p-4 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 transition flex items-center gap-3"> <span class="text-2xl">🔄</span>
-          <div class="text-right">
-           <p class="font-medium">مزامنة الآن</p>
-           <p class="text-sm text-gray-400">مزامنة مع قاعدة البيانات</p>
-          </div></button> <button onclick="clearCache()" class="p-4 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 transition flex items-center gap-3"> <span class="text-2xl">🗄️</span>
-          <div class="text-right">
-           <p class="font-medium">مسح الذاكرة المؤقتة</p>
-           <p class="text-sm text-gray-400">تحديث البيانات</p>
-          </div></button> <button onclick="clearAllData()" class="p-4 rounded-xl bg-red-500/20 hover:bg-red-500/30 transition flex items-center gap-3"> <span class="text-2xl">🗑️</span>
-          <div class="text-right">
-           <p class="font-medium">حذف جميع البيانات</p>
-           <p class="text-sm text-gray-400">إعادة تعيين المتحف</p>
-          </div></button>
-        </div>
-       </div>
-       <div class="border-t border-white/10 pt-6">
-        <h4 class="font-medium mb-4">إحصائيات النظام</h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-         <div class="bg-white/5 rounded-xl p-4">
-          <p class="text-2xl font-bold" id="admin-stats-total">0</p>
-          <p class="text-xs text-gray-400">إجمالي السجلات</p>
-         </div>
-         <div class="bg-white/5 rounded-xl p-4">
-          <p class="text-2xl font-bold" id="admin-stats-ideas">0</p>
-          <p class="text-xs text-gray-400">الأفكار</p>
-         </div>
-         <div class="bg-white/5 rounded-xl p-4">
-          <p class="text-2xl font-bold" id="admin-stats-members">0</p>
-          <p class="text-xs text-gray-400">الأعضاء</p>
-         </div>
-         <div class="bg-white/5 rounded-xl p-4">
-          <p class="text-2xl font-bold" id="admin-stats-suggestions">0</p>
-          <p class="text-xs text-gray-400">الاقتراحات</p>
-         </div>
-        </div>
-       </div>
-      </div>
-     </section><!-- Idea Detail View -->
-     <section id="idea-detail-section" class="hidden max-w-5xl mx-auto"><button onclick="closeIdeaDetail()" class="mb-6 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition flex items-center gap-2"> <span>→</span> <span>العودة</span> </button>
-      <div id="idea-detail-content"><!-- Content will be dynamically inserted -->
-      </div>
-     </section>
-    </main>
-   </div><!-- Add Idea Modal -->
-   <div id="add-idea-modal" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4">
-    <div class="glass-effect rounded-2xl p-6 max-w-lg w-full max-h-[90%] overflow-auto">
-     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">✨ فكرة جديدة</h2><button onclick="closeModal('add-idea')" class="text-gray-400 hover:text-white text-2xl">×</button>
-     </div>
-     <form id="idea-form" class="space-y-4">
-      <div><label for="idea-title" class="block text-sm font-medium mb-2">عنوان الفكرة</label> <input type="text" id="idea-title" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500" placeholder="عنوان مختصر وجذاب">
-      </div>
-      <div><label for="idea-category" class="block text-sm font-medium mb-2">التصنيف</label> <select id="idea-category" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-pink-500"> <option value="" class="bg-gray-800">اختر التصنيف</option> <option value="تقنية" class="bg-gray-800">تقنية 💻</option> <option value="فكرية" class="bg-gray-800">فكرية 🧠</option> <option value="إبداعية" class="bg-gray-800">إبداعية 🎨</option> <option value="علمية" class="bg-gray-800">علمية 🔬</option> </select>
-      </div>
-      <div><label for="idea-content" class="block text-sm font-medium mb-2">تفاصيل الفكرة</label> <textarea id="idea-content" required rows="4" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 resize-none" placeholder="اشرح فكرتك بالتفصيل..."></textarea>
-      </div>
-      <div><label for="idea-tags" class="block text-sm font-medium mb-2">كلمات مفتاحية (اضغط Enter بعد كل كلمة)</label>
-       <div class="tag-input" id="tags-container"><input type="text" id="idea-tags" class="flex-1 bg-transparent outline-none text-white placeholder-gray-400 min-w-[120px]" placeholder="أضف كلمات مفتاحية...">
-       </div><input type="hidden" id="tags-hidden">
-      </div><button type="submit" id="submit-idea-btn" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 text-white font-bold hover:opacity-90 transition"> 🚀 نشر الفكرة </button>
-     </form>
-    </div>
-   </div><!-- Add Suggestion Modal -->
-   <div id="add-suggestion-modal" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4">
-    <div class="glass-effect rounded-2xl p-6 max-w-lg w-full max-h-[90%] overflow-auto">
-     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">💡 اقتراح جديد</h2><button onclick="closeModal('add-suggestion')" class="text-gray-400 hover:text-white text-2xl">×</button>
-     </div>
-     <form id="suggestion-form" class="space-y-4">
-      <div><label for="suggestion-type" class="block text-sm font-medium mb-2">نوع الاقتراح</label> <select id="suggestion-type" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-pink-500"> <option value="" class="bg-gray-800">اختر النوع</option> <option value="تصميم" class="bg-gray-800">تصميم 🎨</option> <option value="محتوى" class="bg-gray-800">محتوى 📝</option> <option value="ميزات" class="bg-gray-800">ميزات جديدة ✨</option> <option value="تحسينات" class="bg-gray-800">تحسينات 🔧</option> <option value="أخرى" class="bg-gray-800">أخرى 💬</option> </select>
-      </div>
-      <div><label for="suggestion-title" class="block text-sm font-medium mb-2">عنوان الاقتراح</label> <input type="text" id="suggestion-title" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500" placeholder="عنوان مختصر للاقتراح">
-      </div>
-      <div><label for="suggestion-content" class="block text-sm font-medium mb-2">تفاصيل الاقتراح</label> <textarea id="suggestion-content" required rows="4" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 resize-none" placeholder="اشرح اقتراحك بالتفصيل..."></textarea>
-      </div><button type="submit" id="submit-suggestion-btn" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 text-white font-bold hover:opacity-90 transition"> 📤 إرسال الاقتراح </button>
-     </form>
-    </div>
-   </div><!-- Delete Confirmation Modal -->
-   <div id="delete-confirm-modal" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4">
-    <div class="glass-effect rounded-2xl p-6 max-w-sm w-full text-center">
-     <div class="text-5xl mb-4">
-      ⚠️
-     </div>
-     <h3 class="text-xl font-bold mb-2">تأكيد الحذف</h3>
-     <p class="text-gray-400 mb-6" id="delete-confirm-text">هل أنت متأكد من حذف هذا العنصر؟</p>
-     <div class="flex gap-3"><button onclick="closeModal('delete-confirm')" class="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition"> إلغاء </button> <button id="confirm-delete-btn" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 transition"> حذف </button>
-     </div>
-    </div>
-   </div>
-  </div>
-  <script>
-    // Supabase Configuration - Connected to External Database
-    const SUPABASE_URL = 'https://lpjimlprsbtcbitanxop.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwamltbHByc2J0Y2JpdGFueG9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU1MDQzMjMsImV4cCI6MjA1MTA4MDMyM30.VN0p_nZqYKGCqLqGGPmvLZ5Ck0c0yqRZYJ3X_cG5tW4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // App State
-    let appData = [];
-    let currentUser = null;
-    let currentFilter = 'all';
-    let deleteTarget = null;
-    let recordCount = 0;
-    let isSidebarVisible = false;
-    let currentTags = [];
-
-    // Config
-    const defaultConfig = {
-      site_title: 'متحف الفكر',
-      site_subtitle: 'بوابة الإبداع الفكري الرقمية',
-      welcome_message: 'حيث تتحول الأفكار إلى إرث خالد',
-      primary_color: '#e94560',
-      secondary_color: '#1a1a2e',
-      text_color: '#ffffff',
-      accent_color: '#f39c12',
-      surface_color: '#16213e',
-      font_family: 'Tajawal',
-      font_size: 16
-    };
-
-    const ADMIN_NAME = 'Rasha';
-    const ADMIN_SPECIALTY = '20250929';
-
-    // Sync Status Management
-    function showSyncStatus(status, message) {
-      const indicator = document.getElementById('sync-indicator');
-      const icon = document.getElementById('sync-icon');
-      const text = document.getElementById('sync-text');
-      
-      indicator.className = 'sync-indicator';
-      
-      if (status === 'syncing') {
-        indicator.classList.add('sync-syncing');
-        icon.textContent = '🔄';
-        text.textContent = message || 'جاري المزامنة...';
-      } else if (status === 'success') {
-        indicator.classList.add('sync-success');
-        icon.textContent = '✅';
-        text.textContent = message || 'تمت المزامنة بنجاح';
-        setTimeout(() => indicator.classList.add('hidden'), 3000);
-      } else if (status === 'error') {
-        indicator.classList.add('sync-error');
-        icon.textContent = '❌';
-        text.textContent = message || 'خطأ في المزامنة';
-        setTimeout(() => indicator.classList.add('hidden'), 5000);
-      }
-      
-      indicator.classList.remove('hidden');
-    }
-
-    // Initialize Supabase Tables
-    async function initializeTables() {
-      try {
-        showSyncStatus('syncing', 'جاري الاتصال بقاعدة البيانات...');
-        
-        const { data: existingData, error } = await supabase
-          .from('museum_data')
-          .select('*')
-          .limit(1);
-
-        if (error && error.code === '42P01') {
-          showSyncStatus('error', 'الجدول غير موجود في قاعدة البيانات');
-          console.log('يرجى إنشاء جدول museum_data في Supabase');
-        } else if (!error) {
-          showSyncStatus('success', 'متصل بقاعدة البيانات بنجاح');
-        }
-      } catch (err) {
-        showSyncStatus('error', 'فشل الاتصال بقاعدة البيانات');
-        console.error('خطأ في التحقق من الجداول:', err);
-      }
-    }
-
-    // Data Handler for Data SDK
-    const dataHandler = {
-      async onDataChanged(data) {
-        appData = data;
-        recordCount = data.length;
-        
-        const newItems = data.filter(item => {
-          return !window.syncedIds?.has(item.__backendId);
-        });
-        
-        if (newItems.length > 0) {
-          newItems.forEach(queueForSync);
-          if (!window.syncedIds) window.syncedIds = new Set();
-          newItems.forEach(item => window.syncedIds.add(item.__backendId));
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الخردوات المحاسبي المتكامل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
         }
         
-        updateUI();
-      }
-    };
-
-    // Sync Queue Management
-    let syncQueue = [];
-    let isSyncing = false;
-    
-    async function syncWithSupabase() {
-      if (isSyncing || syncQueue.length === 0) return;
-      
-      try {
-        isSyncing = true;
-        showSyncStatus('syncing', `مزامنة ${syncQueue.length} عنصر...`);
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
-        const itemsToSync = [...syncQueue];
-        syncQueue = [];
-        
-        const insertData = itemsToSync.map(item => ({
-          id: item.__backendId,
-          type: item.type || '',
-          title: item.title || '',
-          content: item.content || '',
-          author: item.author || '',
-          specialty: item.specialty || '',
-          category: item.category || '',
-          status: item.status || '',
-          created_at: item.createdAt || new Date().toISOString(),
-          is_admin: item.isAdmin || false,
-          role: item.role || '',
-          invite_code: item.inviteCode || '',
-          used_by: item.usedBy || '',
-          likes: item.likes || 0,
-          liked_by: item.likedBy || '',
-          parent_id: item.parentId || '',
-          views: item.views || 0,
-          tags: item.tags || '',
-          image_url: item.imageUrl || ''
-        }));
-        
-        const { error } = await supabase.from('museum_data').upsert(insertData, { onConflict: 'id' });
-        
-        if (error) {
-          showSyncStatus('error', 'فشلت المزامنة');
-          console.error('Sync error:', error);
-        } else {
-          showSyncStatus('success', 'تمت المزامنة بنجاح');
-        }
-      } catch (error) {
-        showSyncStatus('error', 'خطأ في المزامنة');
-        console.error('خطأ في المزامنة:', error);
-      } finally {
-        isSyncing = false;
-      }
-    }
-    
-    function queueForSync(item) {
-      syncQueue.push(item);
-      clearTimeout(window.syncTimeout);
-      window.syncTimeout = setTimeout(syncWithSupabase, 500);
-    }
-
-    // Load Data from Supabase with Caching
-    async function loadFromSupabase() {
-      try {
-        showSyncStatus('syncing', 'جاري تحميل البيانات...');
-        
-        const cachedData = localStorage.getItem('museum_cache');
-        const cacheTime = localStorage.getItem('museum_cache_time');
-        const now = Date.now();
-        
-        if (cachedData && cacheTime && (now - parseInt(cacheTime)) < 300000) {
-          const convertedData = JSON.parse(cachedData);
-          appData = convertedData;
-          recordCount = appData.length;
-          updateUI();
-          showSyncStatus('success', 'تم التحميل من الذاكرة المؤقتة');
-          
-          loadFreshDataInBackground();
-          return;
+        * {
+            font-family: 'Cairo', sans-serif;
         }
         
-        const { data, error } = await supabase
-          .from('museum_data')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          showSyncStatus('error', 'فشل تحميل البيانات');
-          throw error;
-        }
-
-        if (data && data.length > 0) {
-          const convertedData = data.map(item => ({
-            __backendId: item.id,
-            type: item.type || '',
-            title: item.title || '',
-            content: item.content || '',
-            author: item.author || '',
-            specialty: item.specialty || '',
-            category: item.category || '',
-            status: item.status || '',
-            createdAt: item.created_at || new Date().toISOString(),
-            isAdmin: item.is_admin || false,
-            role: item.role || '',
-            inviteCode: item.invite_code || '',
-            usedBy: item.used_by || '',
-            likes: item.likes || 0,
-            likedBy: item.liked_by || '',
-            parentId: item.parent_id || '',
-            views: item.views || 0,
-            tags: item.tags || '',
-            imageUrl: item.image_url || ''
-          }));
-
-          localStorage.setItem('museum_cache', JSON.stringify(convertedData));
-          localStorage.setItem('museum_cache_time', now.toString());
-          
-          window.syncedIds = new Set(convertedData.map(item => item.__backendId));
-
-          appData = convertedData;
-          recordCount = appData.length;
-          updateUI();
-          showSyncStatus('success', `تم تحميل ${data.length} عنصر`);
-        } else {
-          showSyncStatus('success', 'قاعدة البيانات فارغة');
-        }
-      } catch (error) {
-        showSyncStatus('error', 'خطأ في تحميل البيانات');
-        console.error('خطأ في تحميل البيانات:', error);
-      }
-    }
-    
-    function loadFreshDataInBackground() {
-      setTimeout(async () => {
-        try {
-          const { data, error } = await supabase
-            .from('museum_data')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-          if (error) return;
-
-          if (data && data.length > 0) {
-            const convertedData = data.map(item => ({
-              __backendId: item.id,
-              type: item.type || '',
-              title: item.title || '',
-              content: item.content || '',
-              author: item.author || '',
-              specialty: item.specialty || '',
-              category: item.category || '',
-              status: item.status || '',
-              createdAt: item.created_at || new Date().toISOString(),
-              isAdmin: item.is_admin || false,
-              role: item.role || '',
-              inviteCode: item.invite_code || '',
-              usedBy: item.used_by || '',
-              likes: item.likes || 0,
-              likedBy: item.liked_by || '',
-              parentId: item.parent_id || '',
-              views: item.views || 0,
-              tags: item.tags || '',
-              imageUrl: item.image_url || ''
-            }));
-
-            localStorage.setItem('museum_cache', JSON.stringify(convertedData));
-            localStorage.setItem('museum_cache_time', Date.now().toString());
-            
-            window.syncedIds = new Set(convertedData.map(item => item.__backendId));
-          }
-        } catch (error) {
-          console.error('خطأ في التحديث في الخلفية:', error);
-        }
-      }, 100);
-    }
-
-    // Tags Management
-    function initTagsInput() {
-      const input = document.getElementById('idea-tags');
-      const container = document.getElementById('tags-container');
-      
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ',') {
-          e.preventDefault();
-          const tag = input.value.trim();
-          if (tag && !currentTags.includes(tag)) {
-            currentTags.push(tag);
-            renderTags();
-            input.value = '';
-          }
-        }
-      });
-    }
-
-    function renderTags() {
-      const container = document.getElementById('tags-container');
-      const input = document.getElementById('idea-tags');
-      
-      const tagsHTML = currentTags.map(tag => `
-        <div class="tag">
-          <span>${tag}</span>
-          <button type="button" onclick="removeTag('${tag}')">×</button>
-        </div>
-      `).join('');
-      
-      container.innerHTML = tagsHTML + input.outerHTML;
-      
-      const newInput = document.getElementById('idea-tags');
-      newInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ',') {
-          e.preventDefault();
-          const tag = newInput.value.trim();
-          if (tag && !currentTags.includes(tag)) {
-            currentTags.push(tag);
-            renderTags();
-          }
-        }
-      });
-      
-      document.getElementById('tags-hidden').value = currentTags.join(',');
-    }
-
-    function removeTag(tag) {
-      currentTags = currentTags.filter(t => t !== tag);
-      renderTags();
-    }
-
-    // Search Functionality
-    let searchTimeout;
-    function initSearch() {
-      const searchInput = document.getElementById('search-input');
-      if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(() => {
-            performSearch(e.target.value);
-          }, 300);
-        });
-      }
-    }
-
-    function performSearch(query) {
-      const resultsContainer = document.getElementById('search-results');
-      if (!query.trim()) {
-        resultsContainer.innerHTML = '<p class="text-gray-400 text-center py-12">ابدأ البحث لإيجاد الأفكار...</p>';
-        return;
-      }
-
-      const ideas = appData.filter(d => d.type === 'idea');
-      const searchLower = query.toLowerCase();
-      
-      const results = ideas.filter(idea => {
-        const titleMatch = idea.title.toLowerCase().includes(searchLower);
-        const contentMatch = idea.content.toLowerCase().includes(searchLower);
-        const authorMatch = idea.author.toLowerCase().includes(searchLower);
-        const tagsMatch = idea.tags && idea.tags.toLowerCase().includes(searchLower);
-        
-        return titleMatch || contentMatch || authorMatch || tagsMatch;
-      });
-
-      if (results.length === 0) {
-        resultsContainer.innerHTML = '<p class="text-gray-400 text-center py-12">لم يتم العثور على نتائج 😔</p>';
-        return;
-      }
-
-      resultsContainer.innerHTML = results.map(idea => `
-        <div class="glass-effect rounded-xl p-6 card-hover cursor-pointer" onclick="openIdeaDetail('${idea.__backendId}')">
-          <div class="flex justify-between items-start mb-3">
-            <span class="category-badge rounded-full bg-pink-600/30 text-pink-400">${getCategoryEmoji(idea.category)} ${idea.category}</span>
-            ${idea.status === 'featured' ? '<span class="text-yellow-400">⭐</span>' : ''}
-          </div>
-          <h3 class="font-bold text-xl mb-2">${escapeHtml(idea.title)}</h3>
-          <p class="text-gray-400 mb-3 line-clamp-2">${escapeHtml(idea.content)}</p>
-          ${idea.tags ? `
-            <div class="flex flex-wrap gap-2 mb-3">
-              ${idea.tags.split(',').map(tag => `<span class="text-xs bg-pink-500/20 text-pink-400 px-2 py-1 rounded-full">#${tag.trim()}</span>`).join('')}
-            </div>
-          ` : ''}
-          <div class="flex justify-between items-center text-sm text-gray-500">
-            <span>👤 ${escapeHtml(idea.author)}</span>
-            <div class="flex items-center gap-3">
-              <span>${idea.views || 0} 👁️</span>
-              <span>${idea.likes || 0} ❤️</span>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Initialize App
-    async function initApp() {
-      try {
-        await initializeTables();
-        
-        const storedUser = localStorage.getItem('museum_user');
-        if (storedUser) {
-          currentUser = JSON.parse(storedUser);
-          showDashboard();
-          hideLoading();
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
-        await loadFromSupabase();
-
-        if (window.dataSdk) {
-          const result = await window.dataSdk.init(dataHandler);
-          if (!result.isOk) {
-            console.error('Failed to init data SDK');
-          }
-        }
-
-        if (window.elementSdk) {
-          window.elementSdk.init({
-            defaultConfig,
-            onConfigChange: applyConfig,
-            mapToCapabilities: (config) => ({
-              recolorables: [
-                { get: () => config.primary_color || defaultConfig.primary_color, set: (v) => window.elementSdk.setConfig({ primary_color: v }) },
-                { get: () => config.secondary_color || defaultConfig.secondary_color, set: (v) => window.elementSdk.setConfig({ secondary_color: v }) },
-                { get: () => config.text_color || defaultConfig.text_color, set: (v) => window.elementSdk.setConfig({ text_color: v }) },
-                { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => window.elementSdk.setConfig({ accent_color: v }) },
-                { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => window.elementSdk.setConfig({ surface_color: v }) }
-              ],
-              borderables: [],
-              fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: (v) => window.elementSdk.setConfig({ font_family: v }) },
-              fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: (v) => window.elementSdk.setConfig({ font_size: v }) }
-            }),
-            mapToEditPanelValues: (config) => new Map([
-              ['site_title', config.site_title || defaultConfig.site_title],
-              ['site_subtitle', config.site_subtitle || defaultConfig.site_subtitle],
-              ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
-            ])
-          });
-        }
-
-        if (!storedUser) {
-          showLogin();
-          hideLoading();
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 420px;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow-y: auto;
         }
         
-        document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
-        initTagsInput();
-        initSearch();
-      } catch (err) {
-        console.error('Init error:', err);
-        hideLoading();
-        showLogin();
-      }
-    }
-
-    // Apply Config
-    async function applyConfig(config) {
-      const c = { ...defaultConfig, ...config };
-      
-      document.getElementById('login-title').textContent = c.site_title;
-      document.getElementById('login-subtitle').textContent = c.site_subtitle;
-      document.getElementById('login-welcome').textContent = c.welcome_message;
-      document.getElementById('sidebar-title').textContent = c.site_title;
-
-      document.body.style.fontFamily = `${c.font_family}, Tajawal, sans-serif`;
-      document.body.style.fontSize = `${c.font_size}px`;
-    }
-
-    // Sidebar Functions
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      isSidebarVisible = !isSidebarVisible;
-      
-      if (isSidebarVisible) {
-        sidebar.classList.remove('sidebar-hidden');
-        sidebar.classList.add('sidebar-visible');
-      } else {
-        sidebar.classList.remove('sidebar-visible');
-        sidebar.classList.add('sidebar-hidden');
-      }
-    }
-
-    function hideSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      isSidebarVisible = false;
-      sidebar.classList.remove('sidebar-visible');
-      sidebar.classList.add('sidebar-hidden');
-    }
-
-    // UI Functions
-    function hideLoading() {
-      document.getElementById('loading-screen').classList.add('hidden');
-    }
-
-    function showLogin() {
-      document.getElementById('login-page').classList.remove('hidden');
-      document.getElementById('dashboard').classList.add('hidden');
-    }
-
-    function showDashboard() {
-      document.getElementById('login-page').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
-      
-      document.getElementById('user-name').textContent = currentUser.name;
-      document.getElementById('user-specialty').textContent = currentUser.specialty;
-      document.getElementById('user-avatar').textContent = currentUser.role === 'admin' ? '👑' : '💡';
-      
-      const isAdmin = currentUser.role === 'admin';
-      
-      document.getElementById('settings-btn').classList.toggle('hidden', !isAdmin);
-      document.getElementById('members-btn').classList.toggle('hidden', !isAdmin);
-      document.getElementById('invites-btn').classList.toggle('hidden', !isAdmin);
-      document.getElementById('admin-stats-section').classList.toggle('hidden', !isAdmin);
-      document.getElementById('add-idea-home-btn').classList.remove('hidden');
-      document.getElementById('add-idea-btn').classList.remove('hidden');
-      
-      updateUI();
-    }
-
-    function navigateTo(section) {
-      const sections = ['home', 'ideas', 'trending', 'content', 'philosophy', 'quotes', 'search', 'members', 'suggestions', 'settings', 'invites'];
-      sections.forEach(s => {
-        const el = document.getElementById(`${s}-section`);
-        const btn = document.querySelector(`[data-section="${s}"]`);
-        if (el) el.classList.add('hidden');
-        if (btn) btn.classList.remove('active');
-      });
-      
-      const activeSection = document.getElementById(`${section}-section`);
-      const activeBtn = document.querySelector(`[data-section="${section}"]`);
-      if (activeSection) activeSection.classList.remove('hidden');
-      if (activeBtn) activeBtn.classList.add('active');
-      
-      document.getElementById('idea-detail-section').classList.add('hidden');
-      
-      hideSidebar();
-    }
-
-    function openModal(type) {
-      document.getElementById(`${type}-modal`).classList.remove('hidden');
-      if (type === 'add-idea') {
-        currentTags = [];
-        renderTags();
-      }
-    }
-
-    function closeModal(type) {
-      document.getElementById(`${type}-modal`).classList.add('hidden');
-    }
-
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `toast px-4 py-3 rounded-xl ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white shadow-lg`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    // Update UI
-    let lastRenderedState = {};
-    
-    function updateUI() {
-      const ideas = appData.filter(d => d.type === 'idea');
-      const members = appData.filter(d => d.type === 'member');
-      const suggestions = appData.filter(d => d.type === 'suggestion');
-      const invites = appData.filter(d => d.type === 'invite');
-      const featured = ideas.filter(i => i.status === 'featured');
-      const totalViews = ideas.reduce((sum, i) => sum + (i.views || 0), 0);
-
-      const currentState = {
-        ideasCount: ideas.length,
-        membersCount: members.length,
-        suggestionsCount: suggestions.length,
-        featuredCount: featured.length,
-        viewsCount: totalViews
-      };
-
-      if (currentUser?.role === 'admin') {
-        if (lastRenderedState.ideasCount !== currentState.ideasCount) {
-          document.getElementById('stats-ideas').textContent = ideas.length;
-        }
-        if (lastRenderedState.membersCount !== currentState.membersCount) {
-          document.getElementById('stats-members').textContent = members.length;
-        }
-        if (lastRenderedState.viewsCount !== currentState.viewsCount) {
-          document.getElementById('stats-views').textContent = totalViews;
-        }
-        if (lastRenderedState.featuredCount !== currentState.featuredCount) {
-          document.getElementById('stats-featured').textContent = featured.length;
-        }
-      }
-
-      const badge = document.getElementById('suggestions-badge');
-      if (currentUser?.role === 'admin') {
-        const pendingSuggestions = suggestions.filter(s => s.status === 'pending').length;
-        if (pendingSuggestions > 0) {
-          badge.textContent = pendingSuggestions;
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
-      } else {
-        badge.classList.add('hidden');
-      }
-
-      const homeSection = document.getElementById('home-section');
-      const ideasSection = document.getElementById('ideas-section');
-      const trendingSection = document.getElementById('trending-section');
-      
-      if (!homeSection.classList.contains('hidden')) {
-        renderRecentIdeas(ideas.slice(-6).reverse());
-      }
-      
-      if (!ideasSection.classList.contains('hidden')) {
-        renderIdeasGrid(currentFilter === 'all' ? ideas : ideas.filter(i => i.category === currentFilter));
-      }
-
-      if (!trendingSection.classList.contains('hidden')) {
-        const trending = [...ideas].sort((a, b) => {
-          const scoreA = (a.likes || 0) * 2 + (a.views || 0);
-          const scoreB = (b.likes || 0) * 2 + (b.views || 0);
-          return scoreB - scoreA;
-        }).slice(0, 12);
-        renderTrendingGrid(trending);
-      }
-      
-      if (currentUser?.role === 'admin') {
-        const membersSection = document.getElementById('members-section');
-        const suggestionsSection = document.getElementById('suggestions-section');
-        const invitesSection = document.getElementById('invites-section');
-        
-        if (!membersSection.classList.contains('hidden')) {
-          renderMembers(members);
-        }
-        if (!suggestionsSection.classList.contains('hidden')) {
-          renderSuggestions(suggestions);
-        }
-        if (!invitesSection.classList.contains('hidden')) {
-          renderInvites(invites);
+        .sidebar.open {
+            transform: translateX(0);
         }
         
-        document.getElementById('admin-stats-total').textContent = appData.length;
-        document.getElementById('admin-stats-ideas').textContent = ideas.length;
-        document.getElementById('admin-stats-members').textContent = members.length;
-        document.getElementById('admin-stats-suggestions').textContent = suggestions.length;
-      }
-      
-      lastRenderedState = currentState;
-    }
-
-    function renderRecentIdeas(ideas) {
-      const container = document.getElementById('recent-ideas');
-      if (ideas.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">لا توجد أفكار بعد. كن أول من يشارك!</p>';
-        return;
-      }
-      
-      container.innerHTML = ideas.map(idea => {
-        const likeCount = idea.likes || 0;
-        const viewCount = idea.views || 0;
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 999;
+        }
         
-        return `
-        <div class="idea-card rounded-xl p-4 card-hover cursor-pointer" onclick="openIdeaDetail('${idea.__backendId}')">
-          <div class="flex justify-between items-start mb-2">
-            <span class="category-badge rounded-full bg-pink-600/30 text-pink-400">${getCategoryEmoji(idea.category)} ${idea.category}</span>
-            ${idea.status === 'featured' ? '<span class="text-yellow-400">⭐</span>' : ''}
-          </div>
-          <h3 class="font-bold text-lg mb-2">${escapeHtml(idea.title)}</h3>
-          <p class="text-gray-400 text-sm mb-3 line-clamp-2">${escapeHtml(idea.content)}</p>
-          ${idea.tags ? `
-            <div class="flex flex-wrap gap-1 mb-2">
-              ${idea.tags.split(',').slice(0, 3).map(tag => `<span class="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">#${tag.trim()}</span>`).join('')}
-            </div>
-          ` : ''}
-          <div class="flex justify-between items-center text-xs text-gray-500">
-            <span>👤 ${escapeHtml(idea.author)}</span>
-            <div class="flex items-center gap-2">
-              <span>${viewCount} 👁️</span>
-              <span>${likeCount} ❤️</span>
-            </div>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function renderIdeasGrid(ideas) {
-      const container = document.getElementById('ideas-grid');
-      if (ideas.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-12">لا توجد أفكار في هذا القسم بعد</p>';
-        return;
-      }
-      
-      container.innerHTML = ideas.map(idea => {
-        const likeCount = idea.likes || 0;
-        const viewCount = idea.views || 0;
-        const commentCount = appData.filter(d => d.type === 'comment' && d.parentId === idea.__backendId).length;
+        .sidebar-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
         
-        return `
-        <div class="idea-card rounded-2xl p-5 card-hover relative group cursor-pointer" onclick="openIdeaDetail('${idea.__backendId}')">
-          ${currentUser?.role === 'admin' ? `
-            <div class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition flex gap-1 z-10">
-              <button onclick="event.stopPropagation(); toggleFeatured('${idea.__backendId}')" class="p-2 rounded-lg bg-white/10 hover:bg-yellow-500/30 transition" title="تمييز">
-                ${idea.status === 'featured' ? '⭐' : '☆'}
-              </button>
-              <button onclick="event.stopPropagation(); confirmDelete('idea', '${idea.__backendId}')" class="p-2 rounded-lg bg-white/10 hover:bg-red-500/30 transition" title="حذف">
-                🗑️
-              </button>
-            </div>
-          ` : ''}
-          <div class="flex justify-between items-start mb-3">
-            <span class="category-badge rounded-full bg-pink-600/30 text-pink-400">${getCategoryEmoji(idea.category)} ${idea.category}</span>
-            ${idea.status === 'featured' ? '<span class="text-yellow-400 text-xl">⭐</span>' : ''}
-          </div>
-          <h3 class="font-bold text-xl mb-3">${escapeHtml(idea.title)}</h3>
-          <p class="text-gray-400 mb-4 line-clamp-3">${escapeHtml(idea.content)}</p>
-          ${idea.tags ? `
-            <div class="flex flex-wrap gap-2 mb-3">
-              ${idea.tags.split(',').slice(0, 3).map(tag => `<span class="text-xs bg-pink-500/20 text-pink-400 px-2 py-1 rounded-full">#${tag.trim()}</span>`).join('')}
-            </div>
-          ` : ''}
-          <div class="flex justify-between items-center text-sm text-gray-500 pt-3 border-t border-white/10">
-            <span>👤 ${escapeHtml(idea.author)}</span>
-            <div class="flex items-center gap-3">
-              <span>${viewCount} 👁️</span>
-              <span>${commentCount} 💬</span>
-              <span>${likeCount} ❤️</span>
-            </div>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function renderTrendingGrid(ideas) {
-      const container = document.getElementById('trending-grid');
-      if (ideas.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-12">لا توجد أفكار رائجة بعد</p>';
-        return;
-      }
-      
-      container.innerHTML = ideas.map((idea, index) => {
-        const likeCount = idea.likes || 0;
-        const viewCount = idea.views || 0;
-        const score = likeCount * 2 + viewCount;
+        .draggable-item {
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
         
-        return `
-        <div class="idea-card rounded-2xl p-5 card-hover cursor-pointer relative" onclick="openIdeaDetail('${idea.__backendId}')">
-          ${index < 3 ? `<div class="absolute top-2 right-2 text-2xl">${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</div>` : ''}
-          <div class="flex justify-between items-start mb-3">
-            <span class="category-badge rounded-full bg-pink-600/30 text-pink-400">${getCategoryEmoji(idea.category)} ${idea.category}</span>
-            ${idea.status === 'featured' ? '<span class="text-yellow-400">⭐</span>' : ''}
-          </div>
-          <h3 class="font-bold text-xl mb-3">${escapeHtml(idea.title)}</h3>
-          <p class="text-gray-400 mb-4 line-clamp-2">${escapeHtml(idea.content)}</p>
-          <div class="flex justify-between items-center text-sm text-gray-500 pt-3 border-t border-white/10">
-            <span>👤 ${escapeHtml(idea.author)}</span>
-            <div class="flex items-center gap-3">
-              <span>${viewCount} 👁️</span>
-              <span>${likeCount} ❤️</span>
-              <span class="text-pink-400 font-bold">${score} 🔥</span>
-            </div>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function renderMembers(members) {
-      const container = document.getElementById('members-grid');
-      if (members.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-12">لا يوجد أعضاء مسجلين بعد</p>';
-        return;
-      }
-      
-      container.innerHTML = members.map(member => {
-        const roleEmoji = member.role === 'admin' ? '👑' : '💡';
-        const memberIdeas = appData.filter(d => d.type === 'idea' && d.author === member.title);
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
         
-        return `
-        <div class="glass-effect rounded-xl p-4 flex items-center gap-4 card-hover relative group">
-          ${currentUser?.role === 'admin' ? `
-            <button onclick="confirmDelete('member', '${member.__backendId}')" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 p-2 rounded-lg bg-white/10 hover:bg-red-500/30 transition">
-              🗑️
-            </button>
-          ` : ''}
-          <div class="w-14 h-14 rounded-full bg-gradient-to-r from-pink-600 to-orange-500 flex items-center justify-center text-2xl">
-            ${roleEmoji}
-          </div>
-          <div>
-            <h3 class="font-bold">${escapeHtml(member.title)}</h3>
-            <p class="text-sm text-gray-400">${escapeHtml(member.specialty || '')}</p>
-            <p class="text-xs text-gray-500">${memberIdeas.length} فكرة • ${member.role === 'admin' ? 'مدير' : 'عضو'}</p>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function renderSuggestions(suggestions) {
-      const container = document.getElementById('suggestions-list');
-      
-      if (suggestions.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 text-center py-12">لا توجد اقتراحات بعد. كن أول من يقترح!</p>';
-        return;
-      }
-      
-      container.innerHTML = suggestions.map(suggestion => `
-        <div class="glass-effect rounded-xl p-5 card-hover relative group">
-          ${currentUser?.role === 'admin' ? `
-            <div class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition flex gap-1">
-              <button onclick="updateSuggestionStatus('${suggestion.__backendId}', 'approved')" class="p-2 rounded-lg bg-green-500/20 hover:bg-green-500/40 transition" title="قبول">✅</button>
-              <button onclick="updateSuggestionStatus('${suggestion.__backendId}', 'rejected')" class="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/40 transition" title="رفض">❌</button>
-              <button onclick="confirmDelete('suggestion', '${suggestion.__backendId}')" class="p-2 rounded-lg bg-white/10 hover:bg-red-500/30 transition" title="حذف">🗑️</button>
-            </div>
-          ` : ''}
-          <div class="flex items-start gap-4">
-            <div class="text-3xl">${getSuggestionEmoji(suggestion.category)}</div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="category-badge rounded-full bg-white/10">${suggestion.category}</span>
-                <span class="category-badge rounded-full ${getStatusColor(suggestion.status)}">${getStatusText(suggestion.status)}</span>
-              </div>
-              <h3 class="font-bold text-lg mb-2">${escapeHtml(suggestion.title)}</h3>
-              <p class="text-gray-400 mb-3">${escapeHtml(suggestion.content)}</p>
-              <div class="text-sm text-gray-500">
-                <span>👤 ${escapeHtml(suggestion.author)}</span>
-                <span class="mx-2">•</span>
-                <span>${formatDate(suggestion.createdAt)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderInvites(invites) {
-      const container = document.getElementById('invites-grid');
-      if (invites.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-12">لا توجد رموز دعوة بعد</p>';
-        return;
-      }
-      
-      container.innerHTML = invites.map(invite => `
-        <div class="glass-effect rounded-xl p-5 card-hover relative group">
-          ${currentUser?.role === 'admin' ? `
-            <button onclick="confirmDelete('invite', '${invite.__backendId}')" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 p-2 rounded-lg bg-white/10 hover:bg-red-500/30 transition">
-              🗑️
-            </button>
-          ` : ''}
-          <div class="flex items-center gap-4 mb-3">
-            <div class="text-3xl">🎫</div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-lg text-pink-400">${invite.inviteCode}</span>
-                <button onclick="copyInviteCode('${invite.inviteCode}')" class="p-1 rounded hover:bg-white/10 transition" title="نسخ">
-                  📋
-                </button>
-              </div>
-              <p class="text-xs text-gray-500">تم الإنشاء ${formatDate(invite.createdAt)}</p>
-            </div>
-          </div>
-          <div class="pt-3 border-t border-white/10">
-            ${invite.usedBy ? `
-              <div class="flex items-center gap-2 text-sm">
-                <span class="text-green-400">✅ مستخدم</span>
-                <span class="text-gray-400">بواسطة: ${escapeHtml(invite.usedBy)}</span>
-              </div>
-            ` : `
-              <span class="text-sm text-gray-400">⏳ متاح للاستخدام</span>
-            `}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Filter Ideas
-    function filterIdeas(category) {
-      currentFilter = category;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      updateUI();
-    }
-
-    // Helper Functions
-    function getCategoryEmoji(category) {
-      const emojis = { 'تقنية': '💻', 'فكرية': '🧠', 'إبداعية': '🎨', 'علمية': '🔬' };
-      return emojis[category] || '💡';
-    }
-
-    function getSuggestionEmoji(type) {
-      const emojis = { 'تصميم': '🎨', 'محتوى': '📝', 'ميزات': '✨', 'تحسينات': '🔧', 'أخرى': '💬' };
-      return emojis[type] || '💡';
-    }
-
-    function getStatusColor(status) {
-      const colors = { 'pending': 'bg-yellow-500/30 text-yellow-400', 'approved': 'bg-green-500/30 text-green-400', 'rejected': 'bg-red-500/30 text-red-400' };
-      return colors[status] || colors.pending;
-    }
-
-    function getStatusText(status) {
-      const texts = { 'pending': 'قيد المراجعة', 'approved': 'مقبول', 'rejected': 'مرفوض' };
-      return texts[status] || 'قيد المراجعة';
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function generateRandomCode() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = '';
-      for (let i = 0; i < 8; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return code;
-    }
-
-    function hasUserLiked(idea) {
-      if (!idea.likedBy || !currentUser) return false;
-      const likedArray = idea.likedBy.split(',').filter(u => u);
-      return likedArray.includes(currentUser.name);
-    }
-
-    // Event Handlers
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const name = document.getElementById('login-name').value.trim();
-      const specialty = document.getElementById('login-specialty').value.trim();
-
-      let userRole = 'member';
-
-      if (name === ADMIN_NAME && specialty === ADMIN_SPECIALTY) {
-        userRole = 'admin';
-      }
-
-      if (recordCount >= 999) {
-        showToast('تم الوصول للحد الأقصى من السجلات', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('login-btn');
-      btn.disabled = true;
-      btn.textContent = 'جاري التسجيل...';
-
-      currentUser = {
-        name,
-        specialty,
-        role: userRole
-      };
-
-      localStorage.setItem('museum_user', JSON.stringify(currentUser));
-
-      const existingMember = appData.find(d => d.type === 'member' && d.title === name);
-      
-      if (!existingMember && window.dataSdk) {
-        const result = await window.dataSdk.create({
-          type: 'member',
-          title: name,
-          specialty: specialty,
-          role: userRole,
-          isAdmin: userRole === 'admin',
-          createdAt: new Date().toISOString(),
-          status: 'active',
-          content: '',
-          author: name,
-          category: '',
-          inviteCode: '',
-          usedBy: '',
-          likes: 0,
-          likedBy: '',
-          parentId: '',
-          views: 0,
-          tags: '',
-          imageUrl: ''
-        });
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
         
-        if (!result.isOk) {
-          showToast('حدث خطأ أثناء التسجيل', 'error');
+        .drop-zone {
+            min-height: 200px;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #f9fafb 25%, transparent 25%, transparent 75%, #f9fafb 75%, #f9fafb),
+                        linear-gradient(45deg, #f9fafb 25%, transparent 25%, transparent 75%, #f9fafb 75%, #f9fafb);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
         }
-      }
-
-      btn.disabled = false;
-      btn.textContent = '🚀 دخول المتحف';
-      showDashboard();
-      showToast(`مرحباً ${name}! 🎉`);
-    });
-
-    document.getElementById('idea-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (recordCount >= 999) {
-        showToast('تم الوصول للحد الأقصى من السجلات', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('submit-idea-btn');
-      btn.disabled = true;
-      btn.textContent = 'جاري النشر...';
-
-      const idea = {
-        type: 'idea',
-        title: document.getElementById('idea-title').value.trim(),
-        category: document.getElementById('idea-category').value,
-        content: document.getElementById('idea-content').value.trim(),
-        author: currentUser.name,
-        specialty: currentUser.specialty,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        isAdmin: currentUser.role === 'admin',
-        role: currentUser.role,
-        inviteCode: '',
-        usedBy: '',
-        likes: 0,
-        likedBy: '',
-        parentId: '',
-        views: 0,
-        tags: currentTags.join(','),
-        imageUrl: ''
-      };
-
-      if (window.dataSdk) {
-        const result = await window.dataSdk.create(idea);
-        if (result.isOk) {
-          showToast('تم نشر فكرتك بنجاح! ✨');
-          closeModal('add-idea');
-          document.getElementById('idea-form').reset();
-          currentTags = [];
-        } else {
-          showToast('حدث خطأ أثناء نشر الفكرة', 'error');
-        }
-      }
-
-      btn.disabled = false;
-      btn.textContent = '🚀 نشر الفكرة';
-    });
-
-    document.getElementById('suggestion-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (recordCount >= 999) {
-        showToast('تم الوصول للحد الأقصى من السجلات', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('submit-suggestion-btn');
-      btn.disabled = true;
-      btn.textContent = 'جاري الإرسال...';
-
-      const suggestion = {
-        type: 'suggestion',
-        category: document.getElementById('suggestion-type').value,
-        title: document.getElementById('suggestion-title').value.trim(),
-        content: document.getElementById('suggestion-content').value.trim(),
-        author: currentUser.name,
-        specialty: currentUser.specialty,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        isAdmin: false,
-        role: currentUser.role,
-        inviteCode: '',
-        usedBy: '',
-        likes: 0,
-        likedBy: '',
-        parentId: '',
-        views: 0,
-        tags: '',
-        imageUrl: ''
-      };
-
-      if (window.dataSdk) {
-        const result = await window.dataSdk.create(suggestion);
-        if (result.isOk) {
-          showToast('تم إرسال اقتراحك بنجاح! 💡');
-          closeModal('add-suggestion');
-          document.getElementById('suggestion-form').reset();
-        } else {
-          showToast('حدث خطأ أثناء إرسال الاقتراح', 'error');
-        }
-      }
-
-      btn.disabled = false;
-      btn.textContent = '📤 إرسال الاقتراح';
-    });
-
-    // Admin Functions
-    async function generateInviteCode() {
-      if (recordCount >= 999) {
-        showToast('تم الوصول للحد الأقصى من السجلات', 'error');
-        return;
-      }
-
-      const code = generateRandomCode();
-      
-      if (window.dataSdk) {
-        const result = await window.dataSdk.create({
-          type: 'invite',
-          inviteCode: code,
-          usedBy: '',
-          createdAt: new Date().toISOString(),
-          status: 'active',
-          title: `رمز دعوة ${code}`,
-          content: '',
-          author: currentUser.name,
-          specialty: '',
-          category: '',
-          isAdmin: false,
-          role: '',
-          likes: 0,
-          likedBy: '',
-          parentId: '',
-          views: 0,
-          tags: '',
-          imageUrl: ''
-        });
         
-        if (result.isOk) {
-          showToast(`تم إنشاء رمز الدعوة: ${code} 🎫`);
-        } else {
-          showToast('حدث خطأ أثناء إنشاء رمز الدعوة', 'error');
+        .drop-zone.drag-over {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            border: 3px dashed #667eea;
+            border-radius: 12px;
         }
-      }
-    }
-
-    function copyInviteCode(code) {
-      navigator.clipboard.writeText(code).then(() => {
-        showToast('تم نسخ رمز الدعوة 📋');
-      }).catch(() => {
-        showToast('فشل نسخ الرمز', 'error');
-      });
-    }
-
-    async function toggleFeatured(id) {
-      const item = appData.find(d => d.__backendId === id);
-      if (item && window.dataSdk) {
-        const newStatus = item.status === 'featured' ? 'active' : 'featured';
-        const result = await window.dataSdk.update({ ...item, status: newStatus });
-        if (result.isOk) {
-          showToast(newStatus === 'featured' ? 'تم تمييز الفكرة ⭐' : 'تم إلغاء التمييز');
-        }
-      }
-    }
-
-    async function updateSuggestionStatus(id, status) {
-      const item = appData.find(d => d.__backendId === id);
-      if (item && window.dataSdk) {
-        const result = await window.dataSdk.update({ ...item, status });
-        if (result.isOk) {
-          showToast(status === 'approved' ? 'تم قبول الاقتراح ✅' : 'تم رفض الاقتراح ❌');
-        }
-      }
-    }
-
-    async function toggleLike(ideaId) {
-      const idea = appData.find(d => d.__backendId === ideaId);
-      if (!idea || !window.dataSdk) return;
-
-      const likedByArray = idea.likedBy ? idea.likedBy.split(',').filter(u => u) : [];
-      const hasLiked = likedByArray.includes(currentUser.name);
-      
-      let newLikedBy;
-      let newLikes;
-      
-      if (hasLiked) {
-        newLikedBy = likedByArray.filter(u => u !== currentUser.name).join(',');
-        newLikes = Math.max(0, (idea.likes || 0) - 1);
-      } else {
-        likedByArray.push(currentUser.name);
-        newLikedBy = likedByArray.join(',');
-        newLikes = (idea.likes || 0) + 1;
-      }
-      
-      const result = await window.dataSdk.update({
-        ...idea,
-        likes: newLikes,
-        likedBy: newLikedBy
-      });
-      
-      if (result.isOk) {
-        showToast(hasLiked ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالفكرة ❤️');
-        if (!document.getElementById('idea-detail-section').classList.contains('hidden')) {
-          openIdeaDetail(ideaId);
-        }
-      }
-    }
-
-    async function addComment(ideaId) {
-      const commentInput = document.getElementById('comment-input');
-      const commentText = commentInput.value.trim();
-      
-      if (!commentText) {
-        showToast('الرجاء كتابة تعليق', 'error');
-        return;
-      }
-
-      if (recordCount >= 999) {
-        showToast('تم الوصول للحد الأقصى من السجلات', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('add-comment-btn');
-      btn.disabled = true;
-      btn.textContent = 'جاري الإرسال...';
-
-      if (window.dataSdk) {
-        const result = await window.dataSdk.create({
-          type: 'comment',
-          parentId: ideaId,
-          content: commentText,
-          author: currentUser.name,
-          createdAt: new Date().toISOString(),
-          title: '',
-          specialty: currentUser.specialty,
-          category: '',
-          status: 'active',
-          isAdmin: false,
-          role: currentUser.role,
-          inviteCode: '',
-          usedBy: '',
-          likes: 0,
-          likedBy: '',
-          views: 0,
-          tags: '',
-          imageUrl: ''
-        });
         
-        if (result.isOk) {
-          showToast('تم إضافة تعليقك 💬');
-          commentInput.value = '';
-          openIdeaDetail(ideaId);
-        } else {
-          showToast('حدث خطأ أثناء إضافة التعليق', 'error');
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
         }
-      }
-
-      btn.disabled = false;
-      btn.textContent = '💬 إرسال';
-    }
-
-    function confirmDelete(type, id) {
-      deleteTarget = { type, id };
-      const texts = { idea: 'هذه الفكرة', member: 'هذا العضو', suggestion: 'هذا الاقتراح', invite: 'رمز الدعوة هذا' };
-      document.getElementById('delete-confirm-text').textContent = `هل أنت متأكد من حذف ${texts[type]}؟`;
-      openModal('delete-confirm');
-    }
-
-    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
-      if (deleteTarget && window.dataSdk) {
-        const item = appData.find(d => d.__backendId === deleteTarget.id);
-        if (item) {
-          const result = await window.dataSdk.delete(item);
-          if (result.isOk) {
-            showToast('تم الحذف بنجاح');
-            if (deleteTarget.type === 'idea' && !document.getElementById('idea-detail-section').classList.contains('hidden')) {
-              closeIdeaDetail();
+        
+        .widget-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease;
+            border: 1px solid #e5e7eb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-          } else {
-            showToast('حدث خطأ أثناء الحذف', 'error');
-          }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-      }
-      closeModal('delete-confirm');
-      deleteTarget = null;
-    });
-
-    function exportData() {
-      const dataStr = JSON.stringify(appData, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `museum_backup_${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('تم تصدير البيانات بنجاح 📤');
-    }
-
-    async function syncNow() {
-      showSyncStatus('syncing', 'جاري المزامنة...');
-      localStorage.removeItem('museum_cache');
-      localStorage.removeItem('museum_cache_time');
-      await loadFromSupabase();
-      showToast('تم تحديث البيانات 🔄');
-    }
-
-    function clearCache() {
-      localStorage.removeItem('museum_cache');
-      localStorage.removeItem('museum_cache_time');
-      showToast('تم مسح الذاكرة المؤقتة ��️');
-      window.location.reload();
-    }
-
-    async function clearAllData() {
-      deleteTarget = { type: 'all' };
-      document.getElementById('delete-confirm-text').textContent = 'هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!';
-      openModal('delete-confirm');
-      
-      document.getElementById('confirm-delete-btn').onclick = async () => {
-        if (window.dataSdk) {
-          for (const item of appData) {
-            await window.dataSdk.delete(item);
-          }
-          showToast('تم حذف جميع البيانات');
+        
+        .widget-container:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
         }
-        closeModal('delete-confirm');
-      };
-    }
-
-    function logout() {
-      localStorage.removeItem('museum_user');
-      currentUser = null;
-      showLogin();
-      showToast('تم تسجيل الخروج');
-    }
-
-    // Idea Detail Functions
-    async function openIdeaDetail(ideaId) {
-      const idea = appData.find(d => d.__backendId === ideaId);
-      if (!idea) return;
-
-      // Increment views
-      const newViews = (idea.views || 0) + 1;
-      if (window.dataSdk) {
-        await window.dataSdk.update({ ...idea, views: newViews });
-      }
-
-      const comments = appData.filter(d => d.type === 'comment' && d.parentId === ideaId);
-      const likeCount = idea.likes || 0;
-      const viewCount = idea.views || 0;
-      const hasLiked = hasUserLiked(idea);
-
-      const detailContent = document.getElementById('idea-detail-content');
-      detailContent.innerHTML = `
-        <div class="glass-effect rounded-3xl p-8 space-y-6">
-          <div class="flex justify-between items-start flex-wrap gap-4">
-            <div class="flex-1">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="category-badge rounded-full bg-pink-600/30 text-pink-400 text-sm">
-                  ${getCategoryEmoji(idea.category)} ${idea.category}
-                </span>
-                ${idea.status === 'featured' ? '<span class="text-yellow-400 text-2xl">⭐</span>' : ''}
-              </div>
-              <h1 class="text-4xl font-bold mb-4">${escapeHtml(idea.title)}</h1>
-              ${idea.tags ? `
-                <div class="flex flex-wrap gap-2 mb-3">
-                  ${idea.tags.split(',').map(tag => `<span class="text-sm bg-pink-500/20 text-pink-400 px-3 py-1 rounded-full">#${tag.trim()}</span>`).join('')}
-                </div>
-              ` : ''}
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .category-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideDown 0.4s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        .material-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid #667eea40;
+        }
+        
+        .workspace-preview {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .workspace-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .role-workspace {
+            min-height: 600px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .transaction-card {
+            border-right: 4px solid;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .transaction-card.purchase { border-color: #3b82f6; }
+        .transaction-card.sale { border-color: #10b981; }
+        .transaction-card.expense { border-color: #ef4444; }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+            .workspace-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            .role-workspace {
+                padding: 1rem;
+            }
+        }
+        
+        /* أنيميشن للبضائع الجديدة */
+        @keyframes newItem {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .new-item {
+            animation: newItem 0.5s ease-out;
+        }
+        
+        /* تأثير للأرصدة */
+        .balance-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* تصميم محسّن للفواتير */
+        .invoice-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .invoice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* تصميم محسن للتقارير */
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* شريط التقدم */
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        /* تلميحات */
+        [data-tooltip] {
+            position: relative;
+        }
+        
+        [data-tooltip]:before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            background: #374151;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            margin-bottom: 0.5rem;
+        }
+        
+        [data-tooltip]:hover:before {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="h-full w-full bg-gradient-to-br from-gray-50 to-gray-100">
+    <div id="app" class="h-full w-full overflow-auto">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="fixed inset-0 gradient-bg flex items-center justify-center z-50">
+            <div class="text-center text-white">
+                <div class="loading-spinner mx-auto mb-4" style="width: 48px; height: 48px; border-width: 4px;"></div>
+                <p class="text-2xl font-bold">جاري تحميل النظام المحاسبي...</p>
+                <p class="text-lg mt-2 opacity-90">نظام إدارة الخردوات المتكامل</p>
             </div>
-            ${currentUser?.role === 'admin' ? `
-              <div class="flex gap-2">
-                <button onclick="toggleFeatured('${idea.__backendId}')" class="p-3 rounded-xl bg-white/10 hover:bg-yellow-500/30 transition" title="تمييز">
-                  ${idea.status === 'featured' ? '⭐ إلغاء التمييز' : '☆ تمييز'}
-                </button>
-                <button onclick="confirmDelete('idea', '${idea.__backendId}')" class="p-3 rounded-xl bg-white/10 hover:bg-red-500/30 transition" title="حذف">
-                  🗑️ حذف
-                </button>
-              </div>
-            ` : ''}
-          </div>
-
-          <div class="flex items-center gap-4 pb-6 border-b border-white/10">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-pink-600 to-orange-500 flex items-center justify-center text-2xl">
-              ${idea.role === 'admin' ? '👑' : '💡'}
-            </div>
-            <div>
-              <h3 class="font-bold text-lg">${escapeHtml(idea.author)}</h3>
-              <p class="text-gray-400">${escapeHtml(idea.specialty || 'عضو')}</p>
-              <p class="text-sm text-gray-500">${formatDate(idea.createdAt)}</p>
-            </div>
-          </div>
-
-          <div class="prose prose-invert max-w-none">
-            <div class="text-lg text-gray-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(idea.content)}</div>
-          </div>
-
-          <div class="flex items-center gap-4 pt-6 border-t border-white/10">
-            <button onclick="toggleLike('${idea.__backendId}')" class="flex items-center gap-2 px-4 py-2 rounded-xl ${hasLiked ? 'bg-pink-600' : 'bg-white/10'} hover:bg-pink-600/80 transition">
-              <span>❤️</span>
-              <span>${likeCount}</span>
-              <span class="text-sm">${hasLiked ? 'أعجبني' : 'إعجاب'}</span>
-            </button>
-            <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10">
-              <span>👁️</span>
-              <span>${viewCount}</span>
-              <span class="text-sm">مشاهدة</span>
-            </div>
-            <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10">
-              <span>💬</span>
-              <span>${comments.length}</span>
-              <span class="text-sm">تعليق</span>
-            </div>
-          </div>
-
-          <div class="pt-6 border-t border-white/10">
-            <h3 class="text-xl font-bold mb-4">التعليقات (${comments.length})</h3>
-            
-            <div class="mb-6 bg-white/5 rounded-xl p-4">
-              <textarea id="comment-input" rows="3" 
-                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 resize-none"
-                placeholder="اكتب تعليقك هنا..."></textarea>
-              <button onclick="addComment('${idea.__backendId}')" id="add-comment-btn"
-                class="mt-3 px-6 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 hover:opacity-90 transition">
-                💬 إرسال
-              </button>
-            </div>
-            
-            <div class="space-y-4">
-              ${comments.length === 0 ? '<p class="text-gray-400 text-center py-4">لا توجد تعليقات بعد. كن أول من يعلق!</p>' : ''}
-              ${comments.map(comment => `
-                <div class="bg-white/5 rounded-xl p-4">
-                  <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-600 to-orange-500 flex items-center justify-center">
-                      ${comment.role === 'admin' ? '👑' : '💡'}
-                    </div>
-                    <div class="flex-1">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="font-bold">${escapeHtml(comment.author)}</span>
-                        <span class="text-xs text-gray-500">${formatDate(comment.createdAt)}</span>
-                      </div>
-                      <p class="text-gray-300">${escapeHtml(comment.content)}</p>
-                    </div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
         </div>
-      `;
 
-      document.querySelectorAll('#main-content > section:not(#idea-detail-section)').forEach(s => s.classList.add('hidden'));
-      document.getElementById('idea-detail-section').classList.remove('hidden');
-    }
+        <!-- Main Navigation -->
+        <nav class="bg-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-100 rounded-lg transition-all mr-2">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <div class="flex items-center gap-3">
+                            <div class="text-2xl">🏭</div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-800">نظام إدارة الخردوات المحاسبي</h1>
+                                <p class="text-xs text-gray-600" id="current-role-display">المدير</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="relative" data-tooltip="الرصيد المتاح">
+                            <div class="balance-card py-2 px-4">
+                                <div class="text-sm">الرصيد</div>
+                                <div class="text-xl font-bold" id="balance-amount">0 ريال</div>
+                            </div>
+                        </div>
+                        
+                        <select id="user-role-selector" onchange="changeUserRole()" 
+                                class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg border-2 border-white border-opacity-30 font-bold cursor-pointer">
+                            <option value="manager">👑 المدير</option>
+                            <option value="accountant">📊 المحاسب</option>
+                            <option value="weigher">⚖️ الموزن</option>
+                            <option value="cashier">💰 الكاشير</option>
+                            <option value="inventory">📦 المخزن</option>
+                        </select>
+                        
+                        <div id="notifications" class="relative">
+                            <button onclick="toggleNotifications()" class="p-2 hover:bg-gray-100 rounded-lg relative">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                </svg>
+                                <span id="notification-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                            </button>
+                            <div id="notifications-dropdown" class="hidden absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
+                                <div class="p-4 border-b">
+                                    <h3 class="font-bold text-gray-800">الإشعارات</h3>
+                                </div>
+                                <div id="notifications-list" class="max-h-64 overflow-y-auto">
+                                    <!-- Notifications will be added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-    function closeIdeaDetail() {
-      document.getElementById('idea-detail-section').classList.add('hidden');
-      const activeSidebarBtn = document.querySelector('.sidebar-item.active');
-      if (activeSidebarBtn) {
-        const section = activeSidebarBtn.getAttribute('data-section');
-        document.getElementById(`${section}-section`).classList.remove('hidden');
-      } else {
-        document.getElementById('home-section').classList.remove('hidden');
-      }
-    }
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Workspace Selector -->
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 py-4 px-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">مساحات العمل</h2>
+                    <div class="flex gap-2">
+                        <button onclick="saveCurrentWorkspace()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all font-bold">
+                            💾 حفظ المساحة
+                        </button>
+                        <button onclick="exportWorkspace()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all font-bold">
+                            📤 تصدير
+                        </button>
+                        <button onclick="importWorkspace()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all font-bold">
+                            📥 استيراد
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-4 overflow-x-auto pb-2">
+                    <div class="workspace-preview bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300" 
+                         onclick="loadWorkspace('weigher')" data-tooltip="مساحة الموزن">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl">⚖️</span>
+                            <span class="text-xs font-bold mt-1">الموزن</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-preview bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-300" 
+                         onclick="loadWorkspace('accountant')" data-tooltip="مساحة المحاسب">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl">📊</span>
+                            <span class="text-xs font-bold mt-1">المحاسب</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-preview bg-gradient-to-br from-yellow-100 to-yellow-200 border-2 border-yellow-300" 
+                         onclick="loadWorkspace('cashier')" data-tooltip="مساحة الكاشير">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl">💰</span>
+                            <span class="text-xs font-bold mt-1">الكاشير</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-preview bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-300" 
+                         onclick="loadWorkspace('manager')" data-tooltip="مساحة المدير">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl">👑</span>
+                            <span class="text-xs font-bold mt-1">المدير</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workspace-preview bg-gradient-to-br from-red-100 to-red-200 border-2 border-red-300" 
+                         onclick="loadWorkspace('inventory')" data-tooltip="مساحة المخزن">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-2xl">📦</span>
+                            <span class="text-xs font-bold mt-1">المخزن</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    // Initialize
-    initApp();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bbeea4d17b54ed3',t:'MTc2ODA3Njg0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
+            <!-- Current Workspace -->
+            <div id="current-workspace" class="role-workspace mt-4 mx-4">
+                <!-- Workspace content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sticky top-0 bg-white z-10 border-b-2 border-gray-200 p-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800">🧰 الأدوات والمواد</h2>
+                    <button onclick="toggleSidebar()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
+                        <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Quick Actions -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-3">⚡ إجراءات سريعة</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="showAddMaterialForm()" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 transition-all font-bold">
+                            ➕ إضافة مادة
+                        </button>
+                        <button onclick="quickNewTransaction()" class="bg-green-100 text-green-700 p-3 rounded-lg hover:bg-green-200 transition-all font-bold">
+                            💰 معاملة جديدة
+                        </button>
+                        <button onclick="generateReport()" class="bg-purple-100 text-purple-700 p-3 rounded-lg hover:bg-purple-200 transition-all font-bold">
+                            📊 تقرير فوري
+                        </button>
+                        <button onclick="quickInventoryCheck()" class="bg-yellow-100 text-yellow-700 p-3 rounded-lg hover:bg-yellow-200 transition-all font-bold">
+                            📦 فحص مخزون
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Materials Library -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-bold text-gray-700">📚 المواد المتاحة</h3>
+                        <span id="materials-count" class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-sm">0</span>
+                    </div>
+                    <div id="materials-sidebar" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Materials will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Tools Library -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-700 mb-3">🛠️ أدوات العمل</h3>
+                    <div class="space-y-2">
+                        <div draggable="true" data-widget="calculator" ondragstart="handleDragStart(event)" 
+                             class="draggable-item bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-blue-400 cursor-move">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">🧮</span>
+                                <span class="font-bold text-gray-700">حاسبة</span>
+                            </div>
+                        </div>
+                        
+                        <div draggable="true" data-widget="note" ondragstart="handleDragStart(event)" 
+                             class="draggable-item bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 cursor-move">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">📝</span>
+                                <span class="font-bold text-gray-700">ملاحظة</span>
+                            </div>
+                        </div>
+                        
+                        <div draggable="true" data-widget="chart" ondragstart="handleDragStart(event)" 
+                             class="draggable-item bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-purple-400 cursor-move">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">📈</span>
+                                <span class="font-bold text-gray-700">رسم بياني</span>
+                            </div>
+                        </div>
+                        
+                        <div draggable="true" data-widget="calendar" ondragstart="handleDragStart(event)" 
+                             class="draggable-item bg-white p-3 rounded-lg border-2 border-gray-200 hover:border-red-400 cursor-move">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">📅</span>
+                                <span class="font-bold text-gray-700">تقويم</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Modal Container -->
+        <div id="modal-container"></div>
+    </div>
+
+    <script>
+        // نظام إدارة البيانات
+        class AccountingSystem {
+            constructor() {
+                this.loadData();
+                this.currentWorkspace = 'manager';
+                this.currentRole = 'manager';
+                this.initializeSystem();
+            }
+
+            loadData() {
+                // تحميل البيانات من LocalStorage
+                this.materials = JSON.parse(localStorage.getItem('scrap_materials')) || [];
+                this.transactions = JSON.parse(localStorage.getItem('scrap_transactions')) || [];
+                this.inventory = JSON.parse(localStorage.getItem('scrap_inventory')) || [];
+                this.workspaces = JSON.parse(localStorage.getItem('scrap_workspaces')) || {};
+                this.settings = JSON.parse(localStorage.getItem('scrap_settings')) || {
+                    company_name: "شركة الخردوات المتكاملة",
+                    currency: "ريال",
+                    tax_rate: 15,
+                    balance: 100000
+                };
+                this.notifications = JSON.parse(localStorage.getItem('scrap_notifications')) || [];
+            }
+
+            saveData() {
+                localStorage.setItem('scrap_materials', JSON.stringify(this.materials));
+                localStorage.setItem('scrap_transactions', JSON.stringify(this.transactions));
+                localStorage.setItem('scrap_inventory', JSON.stringify(this.inventory));
+                localStorage.setItem('scrap_workspaces', JSON.stringify(this.workspaces));
+                localStorage.setItem('scrap_settings', JSON.stringify(this.settings));
+                localStorage.setItem('scrap_notifications', JSON.stringify(this.notifications));
+            }
+
+            initializeSystem() {
+                // تهيئة البيانات الأساسية إذا كانت فارغة
+                if (this.materials.length === 0) {
+                    this.initializeSampleData();
+                }
+                this.updateBalance();
+                this.updateNotifications();
+            }
+
+            initializeSampleData() {
+                // بيانات نموذجية للبداية
+                this.materials = [
+                    { id: '1', name: 'نحاس', category: 'معادن', unit: 'كيلو', price: 50, min_stock: 100, current_stock: 150 },
+                    { id: '2', name: 'ألمنيوم', category: 'معادن', unit: 'كيلو', price: 30, min_stock: 200, current_stock: 250 },
+                    { id: '3', name: 'حديد', category: 'معادن', unit: 'كيلو', price: 20, min_stock: 500, current_stock: 600 },
+                    { id: '4', name: 'بلاستيك', category: 'بلاستيك', unit: 'كيلو', price: 15, min_stock: 300, current_stock: 400 },
+                    { id: '5', name: 'ورق', category: 'أوراق', unit: 'كيلو', price: 8, min_stock: 200, current_stock: 150 }
+                ];
+
+                this.transactions = [
+                    {
+                        id: '1',
+                        type: 'purchase',
+                        material_id: '1',
+                        material_name: 'نحاس',
+                        quantity: 50,
+                        unit_price: 48,
+                        total_amount: 2400,
+                        supplier: 'مورد النحاس',
+                        date: new Date().toISOString(),
+                        status: 'completed',
+                        created_by: 'manager'
+                    },
+                    {
+                        id: '2',
+                        type: 'sale',
+                        material_id: '1',
+                        material_name: 'نحاس',
+                        quantity: 20,
+                        unit_price: 55,
+                        total_amount: 1100,
+                        customer: 'مصنع الأسلاك',
+                        date: new Date().toISOString(),
+                        status: 'completed',
+                        created_by: 'cashier'
+                    }
+                ];
+
+                this.inventory = this.materials.map(material => ({
+                    material_id: material.id,
+                    material_name: material.name,
+                    current_stock: material.current_stock,
+                    min_stock: material.min_stock,
+                    last_updated: new Date().toISOString()
+                }));
+
+                this.saveData();
+            }
+
+            // إدارة المواد
+            addMaterial(material) {
+                material.id = Date.now().toString();
+                material.created_at = new Date().toISOString();
+                material.current_stock = material.current_stock || 0;
+                this.materials.push(material);
+                
+                // إضافة إشعار للموزن
+                this.addNotification('weigher', '📦 مادة جديدة', `تم إضافة ${material.name}، جاهزة للوزن`);
+                
+                this.saveData();
+                return material;
+            }
+
+            updateMaterial(id, updates) {
+                const index = this.materials.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    this.materials[index] = { ...this.materials[index], ...updates };
+                    this.saveData();
+                    return this.materials[index];
+                }
+                return null;
+            }
+
+            deleteMaterial(id) {
+                this.materials = this.materials.filter(m => m.id !== id);
+                this.saveData();
+            }
+
+            // إدارة المعاملات
+            addTransaction(transaction) {
+                transaction.id = Date.now().toString();
+                transaction.date = new Date().toISOString();
+                transaction.status = transaction.status || 'pending';
+                this.transactions.push(transaction);
+                
+                // تحديث المخزون
+                if (transaction.type === 'purchase') {
+                    this.updateStock(transaction.material_id, transaction.quantity, 'add');
+                } else if (transaction.type === 'sale') {
+                    this.updateStock(transaction.material_id, transaction.quantity, 'subtract');
+                }
+                
+                // تحديث الرصيد
+                this.updateBalance();
+                
+                // إضافة إشعارات
+                if (transaction.type === 'purchase') {
+                    this.addNotification('accountant', '📥 عملية شراء', `شراء ${transaction.quantity} من ${transaction.material_name}`);
+                } else if (transaction.type === 'sale') {
+                    this.addNotification('accountant', '📤 عملية بيع', `بيع ${transaction.quantity} من ${transaction.material_name}`);
+                }
+                
+                this.saveData();
+                return transaction;
+            }
+
+            // إدارة المخزون
+            updateStock(material_id, quantity, operation) {
+                const material = this.materials.find(m => m.id === material_id);
+                if (material) {
+                    if (operation === 'add') {
+                        material.current_stock += quantity;
+                    } else if (operation === 'subtract') {
+                        material.current_stock = Math.max(0, material.current_stock - quantity);
+                        
+                        // تحقق من الحد الأدنى للمخزون
+                        if (material.current_stock <= material.min_stock) {
+                            this.addNotification('inventory', '⚠️ تنبيه مخزون', 
+                                `مخزون ${material.name} منخفض: ${material.current_stock}/${material.min_stock}`);
+                        }
+                    }
+                    this.saveData();
+                }
+            }
+
+            // إدارة المساحات
+            saveWorkspace(role, widgets) {
+                if (!this.workspaces[role]) {
+                    this.workspaces[role] = {};
+                }
+                this.workspaces[role].widgets = widgets;
+                this.workspaces[role].last_updated = new Date().toISOString();
+                this.saveData();
+            }
+
+            loadWorkspace(role) {
+                return this.workspaces[role]?.widgets || this.getDefaultWorkspace(role);
+            }
+
+            getDefaultWorkspace(role) {
+                const defaults = {
+                    weigher: [
+                        { type: 'materials_list', id: 'weigher_materials', title: 'المواد للوزن' },
+                        { type: 'weighing_scale', id: 'scale', title: 'ميزان رقمي' },
+                        { type: 'pending_transactions', id: 'pending', title: 'عمليات قيد الوزن' }
+                    ],
+                    accountant: [
+                        { type: 'transactions_table', id: 'accountant_transactions', title: 'المعاملات' },
+                        { type: 'financial_summary', id: 'accountant_summary', title: 'ملخص مالي' },
+                        { type: 'invoices', id: 'accountant_invoices', title: 'الفواتير' },
+                        { type: 'balance_card', id: 'accountant_balance', title: 'الرصيد' }
+                    ],
+                    cashier: [
+                        { type: 'quick_sale', id: 'cashier_sale', title: 'بيع سريع' },
+                        { type: 'customer_display', id: 'cashier_customer', title: 'بيانات العميل' },
+                        { type: 'receipt_printer', id: 'cashier_receipt', title: 'طباعة فاتورة' }
+                    ],
+                    manager: [
+                        { type: 'dashboard', id: 'manager_dashboard', title: 'لوحة التحكم' },
+                        { type: 'reports', id: 'manager_reports', title: 'التقارير' },
+                        { type: 'performance', id: 'manager_performance', title: 'الأداء' },
+                        { type: 'alerts', id: 'manager_alerts', title: 'التنبيهات' }
+                    ],
+                    inventory: [
+                        { type: 'inventory_list', id: 'inventory_list', title: 'قائمة المخزون' },
+                        { type: 'stock_alerts', id: 'inventory_alerts', title: 'تنبيهات المخزون' },
+                        { type: 'movement_log', id: 'inventory_log', title: 'سجل الحركة' }
+                    ]
+                };
+                return defaults[role] || [];
+            }
+
+            // إدارة الإشعارات
+            addNotification(role, title, message) {
+                const notification = {
+                    id: Date.now().toString(),
+                    role: role,
+                    title: title,
+                    message: message,
+                    date: new Date().toISOString(),
+                    read: false
+                };
+                this.notifications.push(notification);
+                this.saveData();
+                this.updateNotifications();
+            }
+
+            markNotificationAsRead(id) {
+                const notification = this.notifications.find(n => n.id === id);
+                if (notification) {
+                    notification.read = true;
+                    this.saveData();
+                    this.updateNotifications();
+                }
+            }
+
+            getUnreadNotifications(role) {
+                return this.notifications.filter(n => (n.role === role || n.role === 'all') && !n.read);
+            }
+
+            // الحسابات المالية
+            updateBalance() {
+                let balance = this.settings.balance || 0;
+                
+                // حساب الإجمالي من المعاملات
+                this.transactions.forEach(transaction => {
+                    if (transaction.type === 'sale' && transaction.status === 'completed') {
+                        balance += transaction.total_amount;
+                    } else if (transaction.type === 'purchase' && transaction.status === 'completed') {
+                        balance -= transaction.total_amount;
+                    }
+                });
+                
+                this.settings.balance = balance;
+                this.saveData();
+                return balance;
+            }
+
+            getFinancialSummary() {
+                const purchases = this.transactions.filter(t => t.type === 'purchase');
+                const sales = this.transactions.filter(t => t.type === 'sale');
+                
+                const totalPurchases = purchases.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+                const totalSales = sales.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+                const profit = totalSales - totalPurchases;
+                
+                return {
+                    totalPurchases,
+                    totalSales,
+                    profit,
+                    balance: this.settings.balance
+                };
+            }
+
+            // التقارير
+            generateDailyReport(date = new Date()) {
+                const dateStr = date.toISOString().split('T')[0];
+                const dailyTransactions = this.transactions.filter(t => 
+                    t.date.startsWith(dateStr)
+                );
+                
+                const dailyPurchases = dailyTransactions.filter(t => t.type === 'purchase');
+                const dailySales = dailyTransactions.filter(t => t.type === 'sale');
+                
+                return {
+                    date: dateStr,
+                    totalTransactions: dailyTransactions.length,
+                    totalPurchases: dailyPurchases.reduce((sum, t) => sum + t.total_amount, 0),
+                    totalSales: dailySales.reduce((sum, t) => sum + t.total_amount, 0),
+                    transactions: dailyTransactions
+                };
+            }
+        }
+
+        // تهيئة النظام
+        const system = new AccountingSystem();
+        let draggedItem = null;
+
+        // تهيئة التطبيق
+        async function initializeApp() {
+            // تحديث التاريخ
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('ar-SA', {
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric'
+            });
+
+            // تحميل مساحة العمل الافتراضية
+            loadWorkspace('manager');
+
+            // تحديث الواجهة
+            updateUI();
+
+            // إخفاء شاشة التحميل
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 1000);
+        }
+
+        function updateUI() {
+            updateMaterialsList();
+            updateBalanceDisplay();
+            updateNotifications();
+        }
+
+        function updateMaterialsList() {
+            const container = document.getElementById('materials-sidebar');
+            const count = document.getElementById('materials-count');
+            
+            if (system.materials.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">لا توجد مواد</p>';
+                count.textContent = '0';
+                return;
+            }
+
+            container.innerHTML = system.materials.map(material => `
+                <div draggable="true" 
+                     data-type="material" 
+                     data-id="${material.id}"
+                     ondragstart="handleDragStart(event)"
+                     class="draggable-item bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200 hover:border-blue-400 cursor-move new-item">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">📦</span>
+                            <div>
+                                <div class="font-bold text-gray-800 text-sm">${material.name}</div>
+                                <div class="text-xs text-gray-600">${material.price} ${system.settings.currency}/${material.unit}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            ${material.current_stock}
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        <span class="material-tag">${material.category}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            count.textContent = system.materials.length;
+        }
+
+        function updateBalanceDisplay() {
+            const balance = system.updateBalance();
+            document.getElementById('balance-amount').textContent = 
+                `${balance.toLocaleString()} ${system.settings.currency}`;
+        }
+
+        function updateNotifications() {
+            const unread = system.getUnreadNotifications(system.currentRole);
+            const countElement = document.getElementById('notification-count');
+            const listElement = document.getElementById('notifications-list');
+            
+            if (unread.length > 0) {
+                countElement.textContent = unread.length;
+                countElement.classList.remove('hidden');
+            } else {
+                countElement.classList.add('hidden');
+            }
+
+            listElement.innerHTML = unread.length === 0 ? 
+                '<div class="p-4 text-center text-gray-500">لا توجد إشعارات جديدة</div>' :
+                unread.map(notif => `
+                    <div class="p-3 border-b hover:bg-gray-50 cursor-pointer" onclick="markNotificationAsRead('${notif.id}')">
+                        <div class="font-bold text-sm">${notif.title}</div>
+                        <div class="text-xs text-gray-600">${notif.message}</div>
+                        <div class="text-xs text-gray-400 mt-1">${new Date(notif.date).toLocaleTimeString()}</div>
+                    </div>
+                `).join('');
+        }
+
+        function markNotificationAsRead(id) {
+            system.markNotificationAsRead(id);
+            document.getElementById('notifications-dropdown').classList.add('hidden');
+        }
+
+        function toggleNotifications() {
+            document.getElementById('notifications-dropdown').classList.toggle('hidden');
+        }
+
+        // إدارة المساحات
+        function loadWorkspace(role) {
+            system.currentWorkspace = role;
+            system.currentRole = role;
+            document.getElementById('current-role-display').textContent = 
+                role === 'weigher' ? 'الموزن' :
+                role === 'accountant' ? 'المحاسب' :
+                role === 'cashier' ? 'الكاشير' :
+                role === 'manager' ? 'المدير' : 'المخزن';
+
+            const workspace = document.getElementById('current-workspace');
+            const widgets = system.loadWorkspace(role);
+            
+            workspace.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        ${role === 'weigher' ? '⚖️ مساحة الموزن' :
+                          role === 'accountant' ? '📊 مساحة المحاسب' :
+                          role === 'cashier' ? '💰 مساحة الكاشير' :
+                          role === 'manager' ? '👑 مساحة المدير' : '📦 مساحة المخزن'}
+                    </h2>
+                    <div class="text-sm text-gray-600">
+                        آخر تحديث: ${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+                
+                <div class="workspace-grid drop-zone" id="workspace-${role}" 
+                     ondragover="handleDragOver(event)" 
+                     ondrop="handleDrop(event)"
+                     ondragleave="handleDragLeave(event)">
+                    ${widgets.map(widget => createWidgetHTML(widget)).join('')}
+                    
+                    <div class="col-span-full flex flex-col items-center justify-center py-12 text-gray-400 border-2 border-dashed border-gray-300 rounded-xl">
+                        <svg class="w-16 h-16 mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <p class="text-xl font-bold mb-2">اسحب الأدوات هنا</p>
+                        <p class="text-sm">اختر من القائمة الجانبية وأضفها لمساحة العمل</p>
+                    </div>
+                </div>
+            `;
+
+            // إضافة مستمعي الأحداث
+            initializeWorkspaceEvents(role);
+        }
+
+        function createWidgetHTML(widget) {
+            switch(widget.type) {
+                case 'materials_list':
+                    return createWeigherMaterialsWidget(widget);
+                case 'weighing_scale':
+                    return createWeighingScaleWidget(widget);
+                case 'pending_transactions':
+                    return createPendingTransactionsWidget(widget);
+                case 'transactions_table':
+                    return createTransactionsTableWidget(widget);
+                case 'financial_summary':
+                    return createFinancialSummaryWidget(widget);
+                case 'invoices':
+                    return createInvoicesWidget(widget);
+                case 'balance_card':
+                    return createBalanceCardWidget(widget);
+                case 'quick_sale':
+                    return createQuickSaleWidget(widget);
+                case 'customer_display':
+                    return createCustomerDisplayWidget(widget);
+                case 'receipt_printer':
+                    return createReceiptPrinterWidget(widget);
+                case 'dashboard':
+                    return createManagerDashboardWidget(widget);
+                case 'reports':
+                    return createReportsWidget(widget);
+                case 'performance':
+                    return createPerformanceWidget(widget);
+                case 'alerts':
+                    return createAlertsWidget(widget);
+                case 'inventory_list':
+                    return createInventoryListWidget(widget);
+                case 'stock_alerts':
+                    return createStockAlertsWidget(widget);
+                case 'movement_log':
+                    return createMovementLogWidget(widget);
+                case 'calculator':
+                    return createCalculatorWidget(widget);
+                case 'note':
+                    return createNoteWidget(widget);
+                case 'chart':
+                    return createChartWidget(widget);
+                case 'calendar':
+                    return createCalendarWidget(widget);
+                default:
+                    return '';
+            }
+        }
+
+        // === ودجات الموزن ===
+        function createWeigherMaterialsWidget(widget) {
+            const materials = system.materials;
+            return `
+                <div class="widget-container col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">📦 المواد الجاهزة للوزن</h3>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
+                            ${materials.length} مادة
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        ${materials.map(material => `
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 cursor-pointer"
+                                 onclick="startWeighing('${material.id}')">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-3xl">⚖️</span>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-gray-800">${material.name}</div>
+                                        <div class="text-sm text-gray-600">${material.price} ${system.settings.currency}/${material.unit}</div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span class="material-tag">${material.category}</span>
+                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs mr-2">
+                                                المخزون: ${material.current_stock}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createWeighingScaleWidget(widget) {
+            return `
+                <div class="widget-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">⚖️ الميزان الرقمي</h3>
+                        <button onclick="calibrateScale()" class="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200">
+                            معايرة
+                        </button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-5xl font-bold text-gray-800 mb-2" id="scale-display">0.00</div>
+                        <div class="text-gray-600 mb-6" id="scale-unit">كيلوغرام</div>
+                        
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <button onclick="addToScale('1')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">1</button>
+                            <button onclick="addToScale('2')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">2</button>
+                            <button onclick="addToScale('3')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">3</button>
+                            <button onclick="addToScale('4')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">4</button>
+                            <button onclick="addToScale('5')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">5</button>
+                            <button onclick="addToScale('6')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">6</button>
+                            <button onclick="addToScale('7')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">7</button>
+                            <button onclick="addToScale('8')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">8</button>
+                            <button onclick="addToScale('9')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">9</button>
+                            <button onclick="addToScale('.')" class="bg-yellow-100 text-yellow-700 p-3 rounded-lg hover:bg-yellow-200 text-lg font-bold">.</button>
+                            <button onclick="addToScale('0')" class="bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-lg font-bold">0</button>
+                            <button onclick="clearScale()" class="bg-red-100 text-red-700 p-3 rounded-lg hover:bg-red-200 text-lg font-bold">C</button>
+                        </div>
+                        
+                        <button onclick="sendToAccountant()" class="w-full btn-primary text-white px-6 py-3 rounded-xl font-bold text-lg">
+                            📤 إرسال للمحاسب
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let currentWeight = '0';
+        let currentMaterial = null;
+
+        function startWeighing(materialId) {
+            currentMaterial = system.materials.find(m => m.id === materialId);
+            showToast(`تم اختيار ${currentMaterial.name} للوزن`, 'success');
+        }
+
+        function addToScale(value) {
+            if (currentWeight === '0') {
+                currentWeight = value;
+            } else {
+                currentWeight += value;
+            }
+            document.getElementById('scale-display').textContent = currentWeight;
+        }
+
+        function clearScale() {
+            currentWeight = '0';
+            document.getElementById('scale-display').textContent = currentWeight;
+        }
+
+        function sendToAccountant() {
+            if (!currentMaterial) {
+                showToast('يرجى اختيار مادة أولاً', 'error');
+                return;
+            }
+
+            if (currentWeight === '0') {
+                showToast('يرجى إدخال الوزن', 'error');
+                return;
+            }
+
+            const weight = parseFloat(currentWeight);
+            const total = weight * currentMaterial.price;
+
+            // إنشاء معاملة معلقة
+            const transaction = {
+                type: 'weighing',
+                material_id: currentMaterial.id,
+                material_name: currentMaterial.name,
+                quantity: weight,
+                unit_price: currentMaterial.price,
+                total_amount: total,
+                unit: currentMaterial.unit,
+                status: 'pending',
+                created_by: 'weigher'
+            };
+
+            system.addTransaction(transaction);
+            
+            // إشعار للمحاسب
+            system.addNotification('accountant', '⚖️ وزن جديد', 
+                `تم وزن ${weight} ${currentMaterial.unit} من ${currentMaterial.name} - الإجمالي: ${total} ${system.settings.currency}`);
+
+            showToast('تم إرسال البيانات للمحاسب', 'success');
+            
+            // إعادة التعيين
+            currentWeight = '0';
+            currentMaterial = null;
+            document.getElementById('scale-display').textContent = '0.00';
+        }
+
+        // === ودجات المحاسب ===
+        function createTransactionsTableWidget(widget) {
+            const pendingTransactions = system.transactions.filter(t => t.status === 'pending');
+            const recentTransactions = system.transactions.slice(-10).reverse();
+
+            return `
+                <div class="widget-container col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">📋 المعاملات</h3>
+                        <div class="flex gap-2">
+                            <button onclick="showAllTransactions()" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200">
+                                عرض الكل
+                            </button>
+                            <button onclick="showAddTransactionForm()" class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-lg hover:bg-green-200">
+                                + معاملة
+                            </button>
+                        </div>
+                    </div>
+
+                    ${pendingTransactions.length > 0 ? `
+                        <div class="mb-6">
+                            <h4 class="font-bold text-gray-700 mb-2">⏳ المعاملات المعلقة (${pendingTransactions.length})</h4>
+                            <div class="space-y-2">
+                                ${pendingTransactions.map(trans => `
+                                    <div class="transaction-card purchase">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <div class="font-bold">${trans.material_name}</div>
+                                                <div class="text-sm text-gray-600">الكمية: ${trans.quantity} ${trans.unit}</div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="font-bold text-lg">${trans.total_amount} ${system.settings.currency}</div>
+                                                <div class="flex gap-2 mt-2">
+                                                    <button onclick="approveTransaction('${trans.id}')" class="text-xs bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                                                        ✓ قبول
+                                                    </button>
+                                                    <button onclick="rejectTransaction('${trans.id}')" class="text-xs bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                                                        ✗ رفض
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <h4 class="font-bold text-gray-700 mb-2">📅 أحدث المعاملات</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="p-2 text-right">التاريخ</th>
+                                        <th class="p-2 text-right">النوع</th>
+                                        <th class="p-2 text-right">المادة</th>
+                                        <th class="p-2 text-right">الكمية</th>
+                                        <th class="p-2 text-right">المبلغ</th>
+                                        <th class="p-2 text-right">الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${recentTransactions.map(trans => `
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="p-2">${new Date(trans.date).toLocaleDateString()}</td>
+                                            <td class="p-2">
+                                                <span class="${trans.type === 'sale' ? 'text-green-600' : 'text-blue-600'}">
+                                                    ${trans.type === 'sale' ? 'بيع' : 'شراء'}
+                                                </span>
+                                            </td>
+                                            <td class="p-2">${trans.material_name}</td>
+                                            <td class="p-2">${trans.quantity} ${trans.unit}</td>
+                                            <td class="p-2 font-bold">${trans.total_amount}</td>
+                                            <td class="p-2">
+                                                <span class="status-badge ${trans.status === 'completed' ? 'status-completed' : 
+                                                    trans.status === 'pending' ? 'status-pending' : 'status-rejected'}">
+                                                    ${trans.status === 'completed' ? 'مكتمل' : 
+                                                     trans.status === 'pending' ? 'معلق' : 'مرفوض'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function approveTransaction(transactionId) {
+            const transaction = system.transactions.find(t => t.id === transactionId);
+            if (transaction) {
+                transaction.status = 'completed';
+                transaction.approved_by = 'accountant';
+                transaction.approved_at = new Date().toISOString();
+                system.saveData();
+                
+                showToast('تم قبول المعاملة', 'success');
+                loadWorkspace('accountant');
+            }
+        }
+
+        function rejectTransaction(transactionId) {
+            const transaction = system.transactions.find(t => t.id === transactionId);
+            if (transaction) {
+                transaction.status = 'rejected';
+                system.saveData();
+                
+                showToast('تم رفض المعاملة', 'warning');
+                loadWorkspace('accountant');
+            }
+        }
+
+        function createFinancialSummaryWidget(widget) {
+            const summary = system.getFinancialSummary();
+            
+            return `
+                <div class="widget-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">📊 ملخص مالي</h3>
+                        <button onclick="generateFinancialReport()" class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-lg hover:bg-purple-200">
+                            تقرير
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="report-card">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">📥</span>
+                                    <span class="font-bold text-gray-700">إجمالي المشتريات</span>
+                                </div>
+                                <span class="text-2xl font-bold text-blue-600">
+                                    ${summary.totalPurchases.toLocaleString()} ${system.settings.currency}
+                                </span>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill bg-blue-500" style="width: ${Math.min(100, summary.totalPurchases/10000*100)}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">📤</span>
+                                    <span class="font-bold text-gray-700">إجمالي المبيعات</span>
+                                </div>
+                                <span class="text-2xl font-bold text-green-600">
+                                    ${summary.totalSales.toLocaleString()} ${system.settings.currency}
+                                </span>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill bg-green-500" style="width: ${Math.min(100, summary.totalSales/10000*100)}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">💰</span>
+                                    <span class="font-bold text-gray-700">صافي الربح</span>
+                                </div>
+                                <span class="text-2xl font-bold ${summary.profit >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${summary.profit.toLocaleString()} ${system.settings.currency}
+                                </span>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill ${summary.profit >= 0 ? 'bg-green-500' : 'bg-red-500'}" 
+                                     style="width: ${Math.min(100, Math.abs(summary.profit)/5000*100)}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // === ودجات إضافية ===
+        function createInvoicesWidget(widget) {
+            const invoices = system.transactions.filter(t => t.type === 'sale' && t.status === 'completed');
+            
+            return `
+                <div class="widget-container">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">🧾 الفواتير</h3>
+                    <div class="space-y-3">
+                        ${invoices.slice(-5).map(invoice => `
+                            <div class="invoice-card">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="font-bold">فاتورة #${invoice.id.slice(-6)}</div>
+                                    <div class="text-sm text-gray-600">${new Date(invoice.date).toLocaleDateString()}</div>
+                                </div>
+                                <div class="text-sm text-gray-700 mb-1">${invoice.customer || 'عميل'}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">${invoice.quantity} ${invoice.unit} × ${invoice.material_name}</span>
+                                    <span class="font-bold text-lg">${invoice.total_amount} ${system.settings.currency}</span>
+                                </div>
+                                <button onclick="printInvoice('${invoice.id}')" class="w-full mt-3 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 text-sm">
+                                    🖨️ طباعة الفاتورة
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBalanceCardWidget(widget) {
+            const balance = system.settings.balance;
+            
+            return `
+                <div class="balance-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <div class="text-sm opacity-90">الرصيد الحالي</div>
+                            <div class="text-3xl font-bold mt-1">${balance.toLocaleString()} ${system.settings.currency}</div>
+                        </div>
+                        <span class="text-4xl">💰</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="addDeposit()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all">
+                            إيداع
+                        </button>
+                        <button onclick="addWithdrawal()" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all">
+                            سحب
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // === وظائف المساعدة ===
+        function showAddMaterialForm() {
+            Swal.fire({
+                title: 'إضافة مادة جديدة',
+                html: `
+                    <div class="text-right">
+                        <input id="material-name" class="swal2-input" placeholder="اسم المادة" required>
+                        <select id="material-category" class="swal2-input" required>
+                            <option value="">اختر التصنيف</option>
+                            <option value="معادن">معادن</option>
+                            <option value="أوراق">أوراق</option>
+                            <option value="بلاستيك">بلاستيك</option>
+                            <option value="إلكترونيات">إلكترونيات</option>
+                            <option value="زجاج">زجاج</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <select id="material-unit" class="swal2-input" required>
+                            <option value="كيلو">كيلو</option>
+                            <option value="طن">طن</option>
+                            <option value="غرام">غرام</option>
+                            <option value="لتر">لتر</option>
+                            <option value="قطعة">قطعة</option>
+                        </select>
+                        <input id="material-price" type="number" class="swal2-input" placeholder="السعر" required>
+                        <input id="material-stock" type="number" class="swal2-input" placeholder="الكمية الأولية" value="0">
+                        <input id="material-min-stock" type="number" class="swal2-input" placeholder="الحد الأدنى للمخزون" value="10">
+                    </div>
+                `,
+                confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
+                showCancelButton: true,
+                preConfirm: () => {
+                    const name = document.getElementById('material-name').value;
+                    const category = document.getElementById('material-category').value;
+                    const unit = document.getElementById('material-unit').value;
+                    const price = parseFloat(document.getElementById('material-price').value);
+                    const stock = parseInt(document.getElementById('material-stock').value) || 0;
+                    const minStock = parseInt(document.getElementById('material-min-stock').value) || 10;
+
+                    if (!name || !category || !unit || !price) {
+                        Swal.showValidationMessage('يرجى ملء جميع الحقول المطلوبة');
+                        return false;
+                    }
+
+                    return { name, category, unit, price, stock, minStock };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const material = result.value;
+                    system.addMaterial(material);
+                    updateUI();
+                    showToast('تم إضافة المادة بنجاح', 'success');
+                    
+                    // إشعار للموزن
+                    system.addNotification('weigher', '📦 مادة جديدة', 
+                        `تمت إضافة ${material.name}، جاهزة للوزن والبيع`);
+                }
+            });
+        }
+
+        function showAddTransactionForm() {
+            Swal.fire({
+                title: 'إضافة معاملة',
+                html: `
+                    <div class="text-right">
+                        <select id="transaction-type" class="swal2-input" onchange="toggleTransactionFields()">
+                            <option value="purchase">شراء</option>
+                            <option value="sale">بيع</option>
+                        </select>
+                        <select id="transaction-material" class="swal2-input" required>
+                            <option value="">اختر المادة</option>
+                            ${system.materials.map(m => `<option value="${m.id}">${m.name}</option>`).join('')}
+                        </select>
+                        <input id="transaction-quantity" type="number" class="swal2-input" placeholder="الكمية" required>
+                        <input id="transaction-price" type="number" class="swal2-input" placeholder="سعر الوحدة" required>
+                        <input id="transaction-party" class="swal2-input" placeholder="اسم المورد/العميل" required>
+                        <textarea id="transaction-notes" class="swal2-textarea" placeholder="ملاحظات"></textarea>
+                    </div>
+                `,
+                confirmButtonText: 'إضافة',
+                cancelButtonText: 'إلغاء',
+                showCancelButton: true,
+                preConfirm: () => {
+                    const type = document.getElementById('transaction-type').value;
+                    const materialId = document.getElementById('transaction-material').value;
+                    const quantity = parseFloat(document.getElementById('transaction-quantity').value);
+                    const unitPrice = parseFloat(document.getElementById('transaction-price').value);
+                    const party = document.getElementById('transaction-party').value;
+                    const notes = document.getElementById('transaction-notes').value;
+                    const material = system.materials.find(m => m.id === materialId);
+
+                    if (!materialId || !quantity || !unitPrice || !party) {
+                        Swal.showValidationMessage('يرجى ملء جميع الحقول المطلوبة');
+                        return false;
+                    }
+
+                    return {
+                        type,
+                        material_id: materialId,
+                        material_name: material.name,
+                        quantity,
+                        unit_price: unitPrice,
+                        total_amount: quantity * unitPrice,
+                        [type === 'purchase' ? 'supplier' : 'customer']: party,
+                        notes,
+                        status: 'completed'
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const transaction = result.value;
+                    system.addTransaction(transaction);
+                    updateUI();
+                    showToast('تم إضافة المعاملة بنجاح', 'success');
+                    loadWorkspace(system.currentWorkspace);
+                }
+            });
+        }
+
+        // === إدارة السحب والإفلات ===
+        function handleDragStart(e) {
+            draggedItem = {
+                type: e.target.dataset.type || 'tool',
+                widget: e.target.dataset.widget,
+                materialId: e.target.dataset.id
+            };
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            if (e.currentTarget === e.target) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            if (!draggedItem) return;
+
+            if (draggedItem.type === 'material') {
+                addMaterialToWorkspace(draggedItem.materialId);
+            } else if (draggedItem.type === 'tool') {
+                addToolToWorkspace(draggedItem.widget);
+            }
+
+            draggedItem = null;
+        }
+
+        function addMaterialToWorkspace(materialId) {
+            const material = system.materials.find(m => m.id === materialId);
+            if (material) {
+                // إضافة ودجت المادة إلى مساحة العمل الحالية
+                const workspace = system.workspaces[system.currentWorkspace] || { widgets: [] };
+                workspace.widgets.push({
+                    type: 'material_display',
+                    id: `material_${materialId}_${Date.now()}`,
+                    title: material.name,
+                    materialId: materialId
+                });
+                system.saveWorkspace(system.currentWorkspace, workspace.widgets);
+                loadWorkspace(system.currentWorkspace);
+                showToast(`تم إضافة ${material.name} إلى مساحة العمل`, 'success');
+            }
+        }
+
+        function addToolToWorkspace(toolType) {
+            const workspace = system.workspaces[system.currentWorkspace] || { widgets: [] };
+            workspace.widgets.push({
+                type: toolType,
+                id: `${toolType}_${Date.now()}`,
+                title: getToolTitle(toolType)
+            });
+            system.saveWorkspace(system.currentWorkspace, workspace.widgets);
+            loadWorkspace(system.currentWorkspace);
+            showToast('تم إضافة الأداة إلى مساحة العمل', 'success');
+        }
+
+        function getToolTitle(toolType) {
+            const titles = {
+                calculator: 'حاسبة',
+                note: 'ملاحظة',
+                chart: 'رسم بياني',
+                calendar: 'تقويم'
+            };
+            return titles[toolType] || 'أداة جديدة';
+        }
+
+        // === وظائف المساعدة ===
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        function changeUserRole() {
+            const role = document.getElementById('user-role-selector').value;
+            system.currentRole = role;
+            loadWorkspace(role);
+            showToast(`تم التبديل إلى ${getRoleName(role)}`, 'success');
+        }
+
+        function getRoleName(role) {
+            const names = {
+                manager: 'المدير',
+                accountant: 'المحاسب',
+                weigher: 'الموزن',
+                cashier: 'الكاشير',
+                inventory: 'المخزن'
+            };
+            return names[role] || role;
+        }
+
+        function saveCurrentWorkspace() {
+            const workspaceElement = document.getElementById(`workspace-${system.currentWorkspace}`);
+            if (workspaceElement) {
+                const widgets = Array.from(workspaceElement.children)
+                    .filter(child => child.classList.contains('widget-container'))
+                    .map(widget => ({
+                        type: widget.dataset.type || 'custom',
+                        id: widget.id || `widget_${Date.now()}`,
+                        title: widget.querySelector('h3')?.textContent || 'ودجت'
+                    }));
+                
+                system.saveWorkspace(system.currentWorkspace, widgets);
+                showToast('تم حفظ مساحة العمل', 'success');
+            }
+        }
+
+        function exportWorkspace() {
+            const workspaceData = {
+                role: system.currentWorkspace,
+                widgets: system.workspaces[system.currentWorkspace]?.widgets || [],
+                exported_at: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(workspaceData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `workspace_${system.currentWorkspace}_${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showToast('تم تصدير مساحة العمل', 'success');
+        }
+
+        function importWorkspace() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const workspaceData = JSON.parse(event.target.result);
+                        if (workspaceData.widgets && Array.isArray(workspaceData.widgets)) {
+                            system.saveWorkspace(system.currentWorkspace, workspaceData.widgets);
+                            loadWorkspace(system.currentWorkspace);
+                            showToast('تم استيراد مساحة العمل', 'success');
+                        } else {
+                            showToast('ملف غير صالح', 'error');
+                        }
+                    } catch (error) {
+                        showToast('خطأ في قراءة الملف', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function showToast(message, type = 'success') {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: type,
+                title: message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+
+        // تهيئة التطبيق عند التحميل
+        window.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+ </html>
